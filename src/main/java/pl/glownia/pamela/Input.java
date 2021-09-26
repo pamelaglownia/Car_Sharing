@@ -15,6 +15,15 @@ class Input {
         return dataBaseFileName.split(" ");
     }
 
+    String getDataBaseFileName() {
+        String[] arrayWithDataBaseFileName = takeDataBaseName();
+        if (arrayWithDataBaseFileName.length > 1 && arrayWithDataBaseFileName[0].equals("-databaseFileName")) {
+            return arrayWithDataBaseFileName[1];
+        } else {
+            return arrayWithDataBaseFileName[0];
+        }
+    }
+
     int takeUserDecision(int firstNumber, int lastNumber) {
         int userDecision;
         while (!scanner.hasNextInt()) {
@@ -28,5 +37,15 @@ class Input {
             userDecision = takeUserDecision(firstNumber, lastNumber);
         }
         return userDecision;
+    }
+
+    String getNewCompanyName() {
+        System.out.println("Enter the company name:");
+        String companyName = scanner.nextLine();
+        while (companyName.equals("")) {
+            System.out.println("Name can not be empty. Enter database file name:");
+            companyName = scanner.nextLine();
+        }
+        return companyName.trim();
     }
 }

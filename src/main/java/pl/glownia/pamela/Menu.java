@@ -1,17 +1,24 @@
 package pl.glownia.pamela;
 
+import java.sql.Connection;
+
 public class Menu {
 
     private final Input input = new Input();
     private final Printer printer = new Printer();
-//    private final CarSharingJDBC database = new CarSharingJDBC();
+    private final CarSharingJDBC database = new CarSharingJDBC();
+    private Connection connection;
+    private int id = 1;
+
 
     void runMenu() {
-//        database.runDataBase();
-        makeFirstDecision();
+        String dataBaseFileName = input.getDataBaseFileName();
+        connection = database.getConnection(dataBaseFileName);
+        database.createTable(connection);
+        logAsManager();
     }
 
-    void makeFirstDecision() {
+    void logAsManager() {
         printer.printMainMenu();
         int userDecision = input.takeUserDecision(0, 1);
         if (userDecision == 1) {
@@ -29,10 +36,10 @@ public class Menu {
                 manageCompanyList();
                 break;
             case 2:
-                System.out.println("Creating company list...");
+                addNewCompanyToList();
                 break;
             default:
-                makeFirstDecision();
+                logAsManager();
         }
     }
 
@@ -50,5 +57,12 @@ public class Menu {
                 System.out.println("Third...");
                 break;
         }
+    }
+
+    void addNewCompanyToList() {
+        String companyName = input.getNewCompanyName();
+        database.insertRecordToTable(connection, id, companyName);
+        id += 1;
+        makeManagerDecision();
     }
 }

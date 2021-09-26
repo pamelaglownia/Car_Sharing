@@ -10,36 +10,45 @@ class CarSharingJDBC {
     static final String JDBC_DRIVER = "org.h2.Driver";
     static final String DB_URL = "jdbc:h2:file:./src/main/java/pl/glownia/pamela/db/";
 
-    private void createDataBase(String dataBase) {
+    Connection getConnection(String dataBaseFileName) {
+        Connection connection = null;
         try {
             //Register JDBC driver
             Class.forName(JDBC_DRIVER);
-
             //Open a connection
-            Connection connection = DriverManager.getConnection(DB_URL + dataBase);
-
-            //Execute a query
-            Statement statement = connection.createStatement();
-            String sql = "CREATE TABLE IF NOT EXISTS COMPANY (" +
-                    "ID INTEGER, " +
-                    "NAME VARCHAR)";
-            statement.executeUpdate(sql);
-
-            // STEP 4: Clean-up environment
-            statement.close();
-            connection.close();
+            connection = DriverManager.getConnection(DB_URL + dataBaseFileName);
+            connection.setAutoCommit(true);
         } catch (SQLException exception) {
             exception.printStackTrace();
         } catch (ClassNotFoundException exception) {
             exception.printStackTrace();
         }
+        return connection;
     }
 
-    void runDataBase() {
-        Input input = new Input();
-        String[] arrayWithDataBaseFileName = input.takeDataBaseName();
-        if (arrayWithDataBaseFileName.length > 1 && arrayWithDataBaseFileName[0].equals("-databaseFileName")) {
-            createDataBase(arrayWithDataBaseFileName[1]);
+    void createTable(Connection connection) {
+        try {
+            //Execute a query
+            Statement statement = connection.createStatement();
+            String table = "CREATE TABLE IF NOT EXISTS COMPANY (" +
+                    "ID INTEGER PRIMARY KEY AUTO_INCREMENT, " +
+                    "NAME VARCHAR NOT NULL)";
+            statement.executeUpdate(table);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    void insertRecordToTable(Connection connection, int id, String name) {
+        try {
+            Statement statement = connection.createStatement();
+            String recordToInsert = "INSERT INTO COMPANY " +
+                    "VALUES(" + id + ",'" + name + "')";
+            statement.executeUpdate(recordToInsert);
+            System.out.println("Inserted records into table...");
+            statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
     }
 }
