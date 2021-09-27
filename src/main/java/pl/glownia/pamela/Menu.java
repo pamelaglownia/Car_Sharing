@@ -33,7 +33,7 @@ public class Menu {
         int userDecision = input.takeUserDecision(0, 2);
         switch (userDecision) {
             case 1:
-                manageCompanyList();
+                database.readRecords(connection);
                 break;
             case 2:
                 addNewCompanyToList();

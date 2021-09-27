@@ -1,9 +1,6 @@
 package pl.glownia.pamela;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 class CarSharingJDBC {
     // JDBC driver name and database URL
@@ -47,6 +44,24 @@ class CarSharingJDBC {
             statement.executeUpdate(recordToInsert);
             System.out.println("Inserted records into table...");
             statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    void readRecords(Connection connection) {
+        try {
+            Statement statement = connection.createStatement();
+            String query = "SELECT id, name FROM COMPANY";
+            ResultSet resultSet = statement.executeQuery(query);
+            while(resultSet.next()){
+                int id  = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                System.out.print("id: " + id);
+                System.out.print(", name: " + name);
+                System.out.println();
+            }
+            resultSet.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
