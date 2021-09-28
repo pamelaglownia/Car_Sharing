@@ -12,11 +12,4 @@ public class Printer {
                 "2. Create a company\n" +
                 "0. Back");
     }
-
-    void printCompanyList() {
-        System.out.println("Company list:\n" +
-                "1. First company name\n" +
-                "2. Second company name\n" +
-                "3. Third company name");
-    }
 }

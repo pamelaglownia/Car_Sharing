@@ -5,7 +5,7 @@ import java.util.Scanner;
 class Input {
     private final Scanner scanner = new Scanner(System.in);
 
-    String[] takeDataBaseName() {
+   private String[] takeDataBaseName() {
         System.out.println("Enter database file name:");
         String dataBaseFileName = scanner.nextLine().trim();
         while (dataBaseFileName.equals("")) {
