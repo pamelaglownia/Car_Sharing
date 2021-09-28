@@ -29,20 +29,20 @@ class CarSharingJDBC {
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS COMPANY (" +
                     "ID INTEGER PRIMARY KEY AUTO_INCREMENT, " +
-                    "NAME VARCHAR NOT NULL)";
+                    "NAME VARCHAR UNIQUE NOT NULL)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
     }
 
-    void insertRecordToTable(Connection connection, int id, String name) {
+    void insertRecordToTable(Connection connection, String name) {
         try {
             Statement statement = connection.createStatement();
-            String recordToInsert = "INSERT INTO COMPANY " +
-                    "VALUES(" + id + ",'" + name + "')";
+            String recordToInsert = "INSERT INTO COMPANY (name)" +
+                    "VALUES('" + name + "')";
             statement.executeUpdate(recordToInsert);
-            System.out.println("Inserted records into table...");
+            System.out.println("The company was created!");
             statement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -52,16 +52,19 @@ class CarSharingJDBC {
     void readRecords(Connection connection) {
         try {
             Statement statement = connection.createStatement();
-            String query = "SELECT id, name FROM COMPANY";
-            ResultSet resultSet = statement.executeQuery(query);
-            while(resultSet.next()){
-                int id  = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                System.out.print("id: " + id);
-                System.out.print(", name: " + name);
-                System.out.println();
+            String recordToRead = "SELECT id, name FROM COMPANY";
+            ResultSet resultSet = statement.executeQuery(recordToRead);
+            if (!resultSet.next()) {
+                System.out.println("The company list is empty!");
+            } else {
+                System.out.println("Company list:");
+                do {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    System.out.print(id + ". " + name + "\n");
+                } while (resultSet.next());
+                resultSet.close();
             }
-            resultSet.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
