@@ -1,19 +1,16 @@
 package pl.glownia.pamela;
 
-import java.sql.Connection;
-
-public class Menu {
+class Menu {
 
     private final Input input = new Input();
     private final Printer printer = new Printer();
-    private final CarSharingJDBC database = new CarSharingJDBC();
-    private Connection connection;
+    private CarSharingJDBC database;
 
 
     void runMenu() {
         String dataBaseFileName = input.getDataBaseFileName();
-        connection = database.getConnection(dataBaseFileName);
-        database.createTable(connection);
+        database = new CarSharingJDBC(dataBaseFileName);
+        database.createTable();
         logAsManager();
     }
 
@@ -34,7 +31,7 @@ public class Menu {
             userDecision = input.takeUserDecision(0, 2);
             switch (userDecision) {
                 case 1:
-                    database.readRecords(connection);
+                    database.getAllCompanies();
                     break;
                 case 2:
                     addNewCompanyToList();
@@ -48,7 +45,7 @@ public class Menu {
 
     private void addNewCompanyToList() {
         String companyName = input.getNewCompanyName();
-        database.insertRecordToTable(connection, companyName);
+        database.insertRecordToTable(companyName);
         System.out.println();
         makeManagerDecision();
     }

@@ -1,14 +1,19 @@
 package pl.glownia.pamela;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-class CarSharingJDBC {
+class CarSharingJDBC implements CompanyDao {
     // JDBC driver name and database URL
-    static final String JDBC_DRIVER = "org.h2.Driver";
-    static final String DB_URL = "jdbc:h2:file:./src/main/java/pl/glownia/pamela/db/";
 
-    Connection getConnection(String dataBaseFileName) {
-        Connection connection = null;
+    private final List<Company> companies;
+    private Connection connection;
+
+    CarSharingJDBC(String dataBaseFileName) {
+        companies = new ArrayList<>();
+        final String JDBC_DRIVER = "org.h2.Driver";
+        final String DB_URL = "jdbc:h2:file:./src/main/java/pl/glownia/pamela/db/";
         try {
             //Register JDBC driver
             Class.forName(JDBC_DRIVER);
@@ -20,10 +25,9 @@ class CarSharingJDBC {
         } catch (ClassNotFoundException exception) {
             exception.printStackTrace();
         }
-        return connection;
     }
 
-    void createTable(Connection connection) {
+    void createTable() {
         try {
             //Execute a query
             Statement statement = connection.createStatement();
@@ -36,11 +40,12 @@ class CarSharingJDBC {
         }
     }
 
-    void insertRecordToTable(Connection connection, String name) {
+    @Override
+    public void insertRecordToTable(String companyName) {
         try {
             Statement statement = connection.createStatement();
             String recordToInsert = "INSERT INTO COMPANY (name)" +
-                    "VALUES('" + name + "')";
+                    "VALUES('" + companyName + "')";
             statement.executeUpdate(recordToInsert);
             System.out.println("The company was created!");
             statement.close();
@@ -49,24 +54,31 @@ class CarSharingJDBC {
         }
     }
 
-    void readRecords(Connection connection) {
+    @Override
+    public List<Company> readRecords() {
         try {
             Statement statement = connection.createStatement();
             String recordToRead = "SELECT id, name FROM COMPANY";
             ResultSet resultSet = statement.executeQuery(recordToRead);
-            if (!resultSet.next()) {
-                System.out.println("The company list is empty!");
-            } else {
-                System.out.println("Company list:");
-                do {
-                    int id = resultSet.getInt("id");
-                    String name = resultSet.getString("name");
-                    System.out.print(id + ". " + name + "\n");
-                } while (resultSet.next());
-                resultSet.close();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                companies.add(new Company(id, name));
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
+        }
+        return companies;
+    }
+
+    @Override
+    public void getAllCompanies() {
+        List<Company> companies = readRecords();
+        if (companies.isEmpty()) {
+            System.out.println("The company list is empty!");
+        } else {
+            System.out.println("Company list:");
+            companies.forEach(System.out::println);
         }
     }
 }

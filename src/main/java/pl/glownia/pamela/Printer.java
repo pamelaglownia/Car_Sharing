@@ -1,6 +1,6 @@
 package pl.glownia.pamela;
 
-public class Printer {
+class Printer {
 
     void printMainMenu() {
         System.out.println("1. Log in as a manager\n" +

@@ -5,9 +5,12 @@ import java.util.Scanner;
 class Input {
     private final Scanner scanner = new Scanner(System.in);
 
-   private String[] takeDataBaseName() {
+    private String[] takeDataBaseName() {
         System.out.println("Enter database file name:");
         String dataBaseFileName = scanner.nextLine().trim();
+        if (dataBaseFileName.equals("0")) {
+            System.exit(0);
+        }
         while (dataBaseFileName.equals("")) {
             System.out.println("Name can not be empty. Enter database file name:");
             dataBaseFileName = scanner.nextLine();
