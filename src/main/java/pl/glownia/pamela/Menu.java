@@ -1,16 +1,26 @@
 package pl.glownia.pamela;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class Menu {
 
-    private final Input input = new Input();
-    private final Printer printer = new Printer();
-    private CarSharingJDBC database;
+    private final Input input;
+    private final Printer printer;
+    private final CarSharingJDBC database;
+    private final CompanyDao companyTable;
+    private final List<Company> companies = new ArrayList<>();
 
-
-    void runMenu() {
+    Menu() {
+        input = new Input();
+        printer = new Printer();
         String dataBaseFileName = input.getDataBaseFileName();
         database = new CarSharingJDBC(dataBaseFileName);
-        database.createTable();
+        companyTable = new CompanyDao();
+    }
+
+    void runMenu() {
+        companyTable.createTable(database);
         logAsManager();
     }
 
@@ -31,7 +41,7 @@ class Menu {
             userDecision = input.takeUserDecision(0, 2);
             switch (userDecision) {
                 case 1:
-                    database.getAllCompanies();
+                    companyTable.getAll(database, companies);
                     break;
                 case 2:
                     addNewCompanyToList();
@@ -45,7 +55,7 @@ class Menu {
 
     private void addNewCompanyToList() {
         String companyName = input.getNewCompanyName();
-        database.insertRecordToTable(companyName);
+        companyTable.insertRecordToTable(database, companyName);
         System.out.println();
         makeManagerDecision();
     }
