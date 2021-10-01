@@ -1,5 +1,6 @@
 package pl.glownia.pamela;
 
+import java.util.List;
 import java.util.Scanner;
 
 class Input {
@@ -42,13 +43,16 @@ class Input {
         return userDecision;
     }
 
-    String getNewCompanyName() {
-        System.out.println("Enter the company name:");
-        String companyName = scanner.nextLine();
-        while (companyName.equals("")) {
-            System.out.println("Name can not be empty. Enter database file name:");
-            companyName = scanner.nextLine();
+    String getNewItem() {
+        String itemName = scanner.nextLine();
+        while (itemName.equals("")) {
+            System.out.println("Name can not be empty. Enter again:");
+            itemName = scanner.nextLine();
         }
-        return companyName.trim();
+        return itemName.trim();
+    }
+
+    int chooseTheCompany(List<Company> companies) {
+        return takeUserDecision(1, companies.size()) - 1;
     }
 }
