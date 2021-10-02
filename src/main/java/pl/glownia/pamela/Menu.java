@@ -9,9 +9,8 @@ class Menu {
     private final Printer printer;
     private final CarSharingJDBC database;
     private final CompanyDao companyTable;
-    private final CarDao carTable;
+    private final CarTable carTable;
     private final List<Company> companies = new ArrayList<>();
-    private final List<Car> cars = new ArrayList<>();
 
     Menu() {
         input = new Input();
@@ -19,7 +18,7 @@ class Menu {
         String dataBaseFileName = input.getDataBaseFileName();
         database = new CarSharingJDBC(dataBaseFileName);
         companyTable = new CompanyDao(companies);
-        carTable = new CarDao(cars);
+        carTable = new CarTable(new ArrayList<>());
     }
 
     void runMenu() {
@@ -31,10 +30,13 @@ class Menu {
     private void logAsManager() {
         printer.printMainMenu();
         int userDecision = input.takeUserDecision(0, 1);
-        if (userDecision == 1) {
-            makeCompanyDecision();
-        } else {
-            System.exit(0);
+        switch (userDecision) {
+            case 0:
+                companyTable.closeConnection();
+                System.exit(0);
+            case 1:
+                makeCompanyDecision();
+                break;
         }
     }
 
@@ -48,7 +50,7 @@ class Menu {
                     logAsManager();
                     break;
                 case 1:
-                    companyTable.getAll(database);
+                    companyTable.getAll();
                     if (!companies.isEmpty()) {
                         chooseTheCompany();
                     }
@@ -71,10 +73,11 @@ class Menu {
                     makeCompanyDecision();
                     break;
                 case 1:
-                    carTable.getAll(database);
+                    carTable.getAll(companyIndex);
                     break;
                 case 2:
-                    System.out.println("In progress...");
+                    carTable.addNewCar(companyIndex);
+                    makeCarDecision(companyIndex);
                     break;
             }
             System.out.println();
@@ -84,14 +87,7 @@ class Menu {
     private void addNewCompanyToList() {
         System.out.println("Enter the company name:");
         String companyName = input.getNewItem();
-        companyTable.insertRecordToTable(database, companyName);
-        System.out.println();
-        makeCompanyDecision();
-    }
-
-    private void addNewCarToList() {
-        String carName = input.getNewItem();
-        carTable.insertRecordToTable(database, carName);
+        companyTable.insertRecordToTable(companyName);
         System.out.println();
         makeCompanyDecision();
     }

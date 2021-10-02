@@ -1,6 +1,5 @@
 package pl.glownia.pamela;
 
-import java.util.List;
 import java.util.Scanner;
 
 class Input {
@@ -50,9 +49,5 @@ class Input {
             itemName = scanner.nextLine();
         }
         return itemName.trim();
-    }
-
-    int chooseTheCompany(List<Company> companies) {
-        return takeUserDecision(1, companies.size()) - 1;
     }
 }
