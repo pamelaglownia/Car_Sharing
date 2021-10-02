@@ -8,7 +8,7 @@ class Menu {
     private final Input input;
     private final Printer printer;
     private final CarSharingJDBC database;
-    private final CompanyDao companyTable;
+    private final CompanyTable companyTable;
     private final CarTable carTable;
     private final List<Company> companies = new ArrayList<>();
 
@@ -17,7 +17,7 @@ class Menu {
         printer = new Printer();
         String dataBaseFileName = input.getDataBaseFileName();
         database = new CarSharingJDBC(dataBaseFileName);
-        companyTable = new CompanyDao(companies);
+        companyTable = new CompanyTable(companies);
         carTable = new CarTable(new ArrayList<>());
     }
 
@@ -40,6 +40,7 @@ class Menu {
         }
     }
 
+
     private void makeCompanyDecision() {
         int userDecision;
         do {
@@ -56,7 +57,8 @@ class Menu {
                     }
                     break;
                 case 2:
-                    addNewCompanyToList();
+                    companyTable.addNewCompany();
+                    makeCompanyDecision();
                     break;
             }
             System.out.println();
@@ -82,14 +84,6 @@ class Menu {
             }
             System.out.println();
         } while (userDecision != 0);
-    }
-
-    private void addNewCompanyToList() {
-        System.out.println("Enter the company name:");
-        String companyName = input.getNewItem();
-        companyTable.insertRecordToTable(companyName);
-        System.out.println();
-        makeCompanyDecision();
     }
 
     private void chooseTheCompany() {
