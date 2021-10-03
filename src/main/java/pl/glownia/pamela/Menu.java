@@ -7,39 +7,44 @@ class Menu {
 
     private final Input input;
     private final Printer printer;
-    private final CarSharingJDBC database;
-    private final CompanyTable companyTable;
-    private final CarTable carTable;
     private final List<Company> companies = new ArrayList<>();
+    private final List<Car> cars = new ArrayList<>();
+    private final CompanyTable companyTable = new CompanyTable(companies);
+    private final CarTable carTable = new CarTable(cars);
 
     Menu() {
         input = new Input();
         printer = new Printer();
-        String dataBaseFileName = input.getDataBaseFileName();
-        database = new CarSharingJDBC(dataBaseFileName);
-        companyTable = new CompanyTable(companies);
-        carTable = new CarTable(new ArrayList<>());
+    }
+
+    void createConnection(String dataBaseFileName) {
+        CarSharingJDBC database = new CarSharingJDBC(dataBaseFileName);
+        companyTable.createTable(database);
+        carTable.createTable(database);
     }
 
     void runMenu() {
-        companyTable.createTable(database);
-        carTable.createTable(database);
-        logAsManager();
+        logAsManager(true);
     }
 
-    private void logAsManager() {
+    private void logAsManager(boolean isInitialMenu) {
         printer.printMainMenu();
         int userDecision = input.takeUserDecision(0, 1);
         switch (userDecision) {
             case 0:
                 companyTable.closeConnection();
+                carTable.closeConnection();
+                System.out.println("Closing...");
                 System.exit(0);
             case 1:
+                if (isInitialMenu) {
+                    String dataBaseFileName = input.getDataBaseFileName();
+                    createConnection(dataBaseFileName);
+                }
                 makeCompanyDecision();
                 break;
         }
     }
-
 
     private void makeCompanyDecision() {
         int userDecision;
@@ -48,7 +53,7 @@ class Menu {
             userDecision = input.takeUserDecision(0, 2);
             switch (userDecision) {
                 case 0:
-                    logAsManager();
+                    logAsManager(false);
                     break;
                 case 1:
                     companyTable.getAll();
