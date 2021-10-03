@@ -1,5 +1,6 @@
 package pl.glownia.pamela;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public interface CarDao {
@@ -12,4 +13,6 @@ public interface CarDao {
     List<Car> readRecords(int companyId);
 
     void getAll(int companyId);
+
+    void closeConnection();
 }
