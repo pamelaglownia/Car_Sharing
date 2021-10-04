@@ -23,7 +23,7 @@ public class CustomerTable implements CustomerDao {
             String table = "CREATE TABLE IF NOT EXISTS CUSTOMER (" +
                     "ID INTEGER PRIMARY KEY AUTO_INCREMENT, " +
                     "NAME VARCHAR UNIQUE NOT NULL," +
-                    "RENTED_CAR_ID INTEGER," +
+                    "RENTED_CAR_ID INTEGER DEFAULT NULL," +
                     "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID))";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
@@ -55,16 +55,30 @@ public class CustomerTable implements CustomerDao {
     }
 
     @Override
+    public void rentACar(int customerId, int carId) {
+        try {
+            Statement statement = connection.createStatement();
+            String recordToUpdate = "UPDATE CUSTOMER " +
+                    "SET RENTED_CAR_ID = " + carId +
+                    " WHERE ID = " + customerId;
+            statement.executeUpdate(recordToUpdate);
+            statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    @Override
     public List<Customer> readRecords() {
         try {
             Statement statement = connection.createStatement();
-            String recordToRead = "SELECT ID, NAME FROM CUSTOMER";
-            ;
+            String recordToRead = "SELECT ID, NAME, RENTED_CAR_ID FROM CUSTOMER";
             ResultSet resultSet = statement.executeQuery(recordToRead);
             while (resultSet.next()) {
                 int id = resultSet.getInt("ID");
                 String name = resultSet.getString("NAME");
-                customers.add(new Customer(id, name));
+                int carId = resultSet.getInt("RENTED_CAR_ID");
+                customers.add(new Customer(id, name, carId));
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -85,9 +99,26 @@ public class CustomerTable implements CustomerDao {
         }
     }
 
-     int chooseTheCustomer() {
+    @Override
+    public boolean isCarRented(int customerId) {
+        return false;
+    }
+
+    @Override
+    public void getCustomerCarInfo(int customerId) {
+    }
+
+    int chooseTheCustomer() {
         Input input = new Input();
-        return input.takeUserDecision(0, customers.size()) - 1;
+        int decision = input.takeUserDecision(0, customers.size());
+        if (decision == 0) {
+            return 0;
+        }
+        Customer chosenCustomer = customers.stream()
+                .filter(customer -> customer.getId() == decision)
+                .findAny().orElse(null);
+        assert chosenCustomer != null;
+        return chosenCustomer.getId();
     }
 
     @Override

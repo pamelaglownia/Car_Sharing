@@ -9,9 +9,15 @@ interface CustomerDao {
 
     void insertRecordToTable(String customerName);
 
+    void rentACar(int customerId, int carId);
+
     List<Customer> readRecords();
 
     void getAll();
+
+    boolean isCarRented(int customerId);
+
+    void getCustomerCarInfo(int customerId);
 
     void closeConnection();
 }

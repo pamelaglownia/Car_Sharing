@@ -17,4 +17,8 @@ class Company {
     public String toString() {
         return id + ". " + name;
     }
+
+    public int getId() {
+        return id;
+    }
 }

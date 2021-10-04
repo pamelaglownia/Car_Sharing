@@ -9,8 +9,10 @@ class Menu {
     private final Printer printer;
     private final List<Company> companies = new ArrayList<>();
     private final List<Car> cars = new ArrayList<>();
+    private final List<Customer> customers = new ArrayList<>();
     private final CompanyTable companyTable = new CompanyTable(companies);
     private final CarTable carTable = new CarTable(cars);
+    private final CustomerTable customerTable = new CustomerTable(customers);
 
     Menu() {
         input = new Input();
@@ -21,27 +23,39 @@ class Menu {
         CarSharingJDBC database = new CarSharingJDBC(dataBaseFileName);
         companyTable.createTable(database);
         carTable.createTable(database);
+        customerTable.createTable(database);
     }
 
-    void runMenu() {
-        logAsManager(true);
+    void run() {
+        String dataBaseFileName = input.getDataBaseFileName();
+        createConnection(dataBaseFileName);
+        runInitialMenu();
     }
 
-    private void logAsManager(boolean isInitialMenu) {
+    private void runInitialMenu() {
         printer.printMainMenu();
-        int userDecision = input.takeUserDecision(0, 1);
+        int userDecision = input.takeUserDecision(0, 3);
         switch (userDecision) {
             case 0:
-                companyTable.closeConnection();
-                carTable.closeConnection();
-                System.out.println("Closing...");
+                closeConnections();
                 System.exit(0);
             case 1:
-                if (isInitialMenu) {
-                    String dataBaseFileName = input.getDataBaseFileName();
-                    createConnection(dataBaseFileName);
-                }
                 makeCompanyDecision();
+                break;
+            case 2:
+                customerTable.getAll();
+                if (!customers.isEmpty()) {
+                    int customerId = customerTable.chooseTheCustomer();
+                    if (customerId != 0) {
+                        makeCustomerDecision(customerId);
+                    } else {
+                        runInitialMenu();
+                    }
+                }
+                break;
+            case 3:
+                customerTable.addNewCustomer();
+                runInitialMenu();
                 break;
         }
     }
@@ -52,14 +66,8 @@ class Menu {
             printer.printCompanyMenu();
             userDecision = input.takeUserDecision(0, 2);
             switch (userDecision) {
-                case 0:
-                    logAsManager(false);
-                    break;
                 case 1:
-                    companyTable.getAll();
-                    if (!companies.isEmpty()) {
-                        chooseTheCompany();
-                    }
+                    makeCarDecision(companyTable.chooseTheCompany());
                     break;
                 case 2:
                     companyTable.addNewCompany();
@@ -67,18 +75,19 @@ class Menu {
                     break;
             }
             System.out.println();
-        } while (userDecision != 0);
+        }
+        while (userDecision != 0);
+        runInitialMenu();
+
     }
 
     private void makeCarDecision(int companyIndex) {
         int userDecision;
         do {
-            printer.printCarMenu(companies, companyIndex);
+            companyTable.getCompanyName(companyIndex);
+            printer.printCarMenu();
             userDecision = input.takeUserDecision(0, 2);
             switch (userDecision) {
-                case 0:
-                    makeCompanyDecision();
-                    break;
                 case 1:
                     carTable.getAll(companyIndex);
                     break;
@@ -89,10 +98,39 @@ class Menu {
             }
             System.out.println();
         } while (userDecision != 0);
+        makeCompanyDecision();
     }
 
-    private void chooseTheCompany() {
-        int companyIndex = input.takeUserDecision(1, companies.size()) - 1;
-        makeCarDecision(companyIndex);
+    private void makeCustomerDecision(int customerId) {
+        int userDecision;
+        do {
+            printer.printCustomerMenu();
+            userDecision = input.takeUserDecision(0, 3);
+            System.out.println(userDecision);
+            switch (userDecision) {
+                case 0:
+                    break;
+                case 1:
+                    int chosenCompany = companyTable.chooseTheCompany();
+                    int chosenCar = carTable.chooseTheCar(chosenCompany);
+                    customerTable.rentACar(customerId, chosenCar);
+                    carTable.getCarName(chosenCar);
+                    break;
+                case 2:
+                    System.out.println("In progress....");
+                    break;
+                case 3:
+                    System.out.println("In progress....");
+                    break;
+            }
+            System.out.println();
+        } while (userDecision != 0);
+        runInitialMenu();
+    }
+
+    private void closeConnections() {
+        companyTable.closeConnection();
+        carTable.closeConnection();
+        System.out.println("Closing...");
     }
 }

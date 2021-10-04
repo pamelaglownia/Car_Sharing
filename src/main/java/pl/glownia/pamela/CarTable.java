@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-public class CarTable implements CarDao {
+class CarTable implements CarDao {
     private Connection connection;
     private List<Car> cars;
 
-    public CarTable(List<Car> cars) {
+    CarTable(List<Car> cars) {
         this.cars = cars;
     }
 
@@ -82,6 +82,40 @@ public class CarTable implements CarDao {
         } else {
             System.out.println("Car list:");
             cars.forEach(System.out::println);
+        }
+    }
+
+    void getCarName(int carId) {
+        Car rentedCar = cars.stream()
+                .filter(car -> car.getId() == carId)
+                .findAny().orElse(null);
+        assert rentedCar != null;
+        System.out.println("You rented " + rentedCar.getName() + ".");
+    }
+
+    int chooseTheCar(int companyId) {
+        getAll(companyId);
+        System.out.println("Choose the car:");
+        Input input = new Input();
+        int decision= input.takeUserDecision(0, cars.size());
+        if(decision ==0){
+            return 0;
+        }
+        Car chosenCar = cars.stream()
+                .filter(car -> car.getId() == decision)
+                .findAny().orElse(null);
+        assert chosenCar != null;
+        return chosenCar.getId();
+    }
+
+    @Override
+    public void closeConnection() {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

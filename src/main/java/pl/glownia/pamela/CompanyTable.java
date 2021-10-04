@@ -71,14 +71,43 @@ class CompanyTable implements CompanyDao {
 
     @Override
     public void getAll() {
-        companies.clear();
-        companies = readRecords();
-        if (companies.isEmpty()) {
+        if (isEmptyList()) {
             System.out.println("The company list is empty!");
         } else {
+            companies.clear();
+            companies = readRecords();
             System.out.println("Choose the company:");
             companies.forEach(System.out::println);
         }
+    }
+
+    boolean isEmptyList() {
+        companies.clear();
+        companies = readRecords();
+        return companies.isEmpty();
+    }
+
+    int chooseTheCompany() {
+        getAll();
+        Input input = new Input();
+        int decision = input.takeUserDecision(0, companies.size());
+        if (decision == 0) {
+            return 0;
+        }
+        Company chosenCompany = companies.stream()
+                .filter(company -> company.getId() == decision)
+                .findAny().orElse(null);
+        assert chosenCompany != null;
+        System.out.println(chosenCompany.getId());
+        return chosenCompany.getId();
+    }
+
+    void getCompanyName(int userDecision) {
+        Company chosenCompany = companies.stream()
+                .filter(company -> company.getId() == userDecision)
+                .findAny().orElse(null);
+        assert chosenCompany != null;
+        System.out.println("'" + chosenCompany.getName() + "' company:");
     }
 
     @Override
