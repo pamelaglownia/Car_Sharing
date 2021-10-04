@@ -6,7 +6,7 @@ class Input {
     private final Scanner scanner = new Scanner(System.in);
 
     private String[] takeDataBaseName() {
-        System.out.println("Enter database file name:");
+        System.out.println("Enter database file name (to choose default database enter: \"-databaseFileName carsharing\"):");
         String dataBaseFileName = scanner.nextLine().trim();
         if (dataBaseFileName.equals("0")) {
             System.exit(0);
