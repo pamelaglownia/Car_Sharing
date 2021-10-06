@@ -34,11 +34,11 @@ class Input {
             scanner.next();
         }
         userDecision = scanner.nextInt();
+        scanner.nextLine();
         while (!(userDecision >= firstNumber && userDecision <= lastNumber)) {
             System.out.println("Choose one option from " + firstNumber + " to " + lastNumber + ":");
             userDecision = takeUserDecision(firstNumber, lastNumber);
         }
-        scanner.nextLine();
         return userDecision;
     }
 

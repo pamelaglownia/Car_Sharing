@@ -21,7 +21,7 @@ class CompanyTable implements CompanyDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS COMPANY (" +
-                    "ID INTEGER PRIMARY KEY AUTO_INCREMENT, " +
+                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
                     "NAME VARCHAR UNIQUE NOT NULL)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
@@ -71,14 +71,10 @@ class CompanyTable implements CompanyDao {
 
     @Override
     public void getAll() {
-        if (isEmptyList()) {
-            System.out.println("The company list is empty!");
-        } else {
-            companies.clear();
-            companies = readRecords();
-            System.out.println("Choose the company:");
-            companies.forEach(System.out::println);
-        }
+        companies.clear();
+        companies = readRecords();
+        System.out.println("Choose the company:");
+        companies.forEach(System.out::println);
     }
 
     boolean isEmptyList() {
@@ -88,7 +84,12 @@ class CompanyTable implements CompanyDao {
     }
 
     int chooseTheCompany() {
-        getAll();
+        if (isEmptyList()) {
+            System.out.println("The company list is empty!");
+            return 0;
+        } else {
+            getAll();
+        }
         Input input = new Input();
         int decision = input.takeUserDecision(0, companies.size());
         if (decision == 0) {
@@ -98,7 +99,6 @@ class CompanyTable implements CompanyDao {
                 .filter(company -> company.getId() == decision)
                 .findAny().orElse(null);
         assert chosenCompany != null;
-        System.out.println(chosenCompany.getId());
         return chosenCompany.getId();
     }
 

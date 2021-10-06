@@ -51,6 +51,8 @@ class Menu {
                     } else {
                         runInitialMenu();
                     }
+                } else {
+                    runInitialMenu();
                 }
                 break;
             case 3:
@@ -67,7 +69,10 @@ class Menu {
             userDecision = input.takeUserDecision(0, 2);
             switch (userDecision) {
                 case 1:
-                    makeCarDecision(companyTable.chooseTheCompany());
+                    int companyId = companyTable.chooseTheCompany();
+                    if (companyId != 0) {
+                        makeCarDecision(companyId);
+                    }
                     break;
                 case 2:
                     companyTable.addNewCompany();
@@ -106,7 +111,6 @@ class Menu {
         do {
             printer.printCustomerMenu();
             userDecision = input.takeUserDecision(0, 3);
-            System.out.println(userDecision);
             switch (userDecision) {
                 case 0:
                     break;
@@ -120,7 +124,7 @@ class Menu {
                     System.out.println("In progress....");
                     break;
                 case 3:
-                    System.out.println("In progress....");
+                    carTable.getRentedCarInfo(customerId);
                     break;
             }
             System.out.println();
@@ -131,6 +135,7 @@ class Menu {
     private void closeConnections() {
         companyTable.closeConnection();
         carTable.closeConnection();
+        customerTable.closeConnection();
         System.out.println("Closing...");
     }
 }

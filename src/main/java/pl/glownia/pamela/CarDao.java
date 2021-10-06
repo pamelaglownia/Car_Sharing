@@ -13,5 +13,7 @@ public interface CarDao {
 
     void getAll(int companyId);
 
+    void getRentedCarInfo(int customerId);
+
     void closeConnection();
 }

@@ -15,9 +15,5 @@ interface CustomerDao {
 
     void getAll();
 
-    boolean isCarRented(int customerId);
-
-    void getCustomerCarInfo(int customerId);
-
     void closeConnection();
 }

@@ -21,7 +21,7 @@ public class CustomerTable implements CustomerDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS CUSTOMER (" +
-                    "ID INTEGER PRIMARY KEY AUTO_INCREMENT, " +
+                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
                     "NAME VARCHAR UNIQUE NOT NULL," +
                     "RENTED_CAR_ID INTEGER DEFAULT NULL," +
                     "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID))";
@@ -44,8 +44,8 @@ public class CustomerTable implements CustomerDao {
     public void insertRecordToTable(String customerName) {
         try {
             Statement statement = connection.createStatement();
-            String recordToInsert = "INSERT INTO CUSTOMER (NAME)" +
-                    "VALUES('" + customerName + "')";
+            String recordToInsert = "INSERT INTO CUSTOMER (NAME, RENTED_CAR_ID) " +
+                    "VALUES('" + customerName + "', DEFAULT)";
             statement.executeUpdate(recordToInsert);
             System.out.println("The customer was added!");
             statement.close();
@@ -97,15 +97,6 @@ public class CustomerTable implements CustomerDao {
             customers.forEach(System.out::println);
             System.out.println("0. Back");
         }
-    }
-
-    @Override
-    public boolean isCarRented(int customerId) {
-        return false;
-    }
-
-    @Override
-    public void getCustomerCarInfo(int customerId) {
     }
 
     int chooseTheCustomer() {

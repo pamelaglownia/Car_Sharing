@@ -1,9 +1,6 @@
 package pl.glownia.pamela;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 class CarTable implements CarDao {
@@ -21,9 +18,9 @@ class CarTable implements CarDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS CAR (" +
-                    "ID INTEGER PRIMARY KEY AUTO_INCREMENT, " +
+                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
                     "NAME VARCHAR UNIQUE NOT NULL," +
-                    "COMPANY_ID INTEGER NOT NULL," +
+                    "COMPANY_ID INT NOT NULL," +
                     "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID))";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
@@ -97,8 +94,8 @@ class CarTable implements CarDao {
         getAll(companyId);
         System.out.println("Choose the car:");
         Input input = new Input();
-        int decision= input.takeUserDecision(0, cars.size());
-        if(decision ==0){
+        int decision = input.takeUserDecision(0, cars.size());
+        if (decision == 0) {
             return 0;
         }
         Car chosenCar = cars.stream()
@@ -106,6 +103,32 @@ class CarTable implements CarDao {
                 .findAny().orElse(null);
         assert chosenCar != null;
         return chosenCar.getId();
+    }
+
+    @Override
+    public void getRentedCarInfo(int customerId) {
+        try {
+            Statement statement = connection.createStatement();
+            String recordToRead = "SELECT CAR.NAME, COMPANY.NAME AS COMPANY " +
+                    "FROM CUSTOMER " +
+                    "JOIN CAR " +
+                    "ON CUSTOMER.RENTED_CAR_ID = CAR.ID " +
+                    "JOIN COMPANY " +
+                    "ON CAR.COMPANY_ID = COMPANY.ID " +
+                    "WHERE CUSTOMER.ID = " + customerId;
+            ResultSet resultSet = statement.executeQuery(recordToRead);
+            if (!resultSet.next()) {
+                System.out.println("You didn't rent a car!");
+            } else {
+                do {
+                    String carName = resultSet.getString("NAME");
+                    String companyName = resultSet.getString("COMPANY");
+                    System.out.println("Your rented car: " + carName + "\ncompany: " + companyName);
+                } while (resultSet.next());
+            }
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override
