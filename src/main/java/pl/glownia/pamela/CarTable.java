@@ -45,7 +45,7 @@ class CarTable implements CarDao {
                     "VALUES('" + carName + "', " + companyId + ")";
             statement.executeUpdate(recordToInsert);
             System.out.println("The car was created!");
-            statement.close();
+//            statement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -74,12 +74,14 @@ class CarTable implements CarDao {
     public void getAll(int companyId) {
         cars.clear();
         cars = readRecords(companyId);
-        if (cars.isEmpty()) {
-            System.out.println("The car list is empty!");
-        } else {
-            System.out.println("Car list:");
-            cars.forEach(System.out::println);
-        }
+        System.out.println("Car list:");
+        cars.forEach(System.out::println);
+    }
+
+    boolean isEmptyList(int companyId) {
+        cars.clear();
+        cars = readRecords(companyId);
+        return cars.isEmpty();
     }
 
     void getCarName(int carId) {
@@ -91,8 +93,13 @@ class CarTable implements CarDao {
     }
 
     int chooseTheCar(int companyId) {
-        getAll(companyId);
-        System.out.println("Choose the car:");
+        if (isEmptyList(companyId)) {
+            System.out.println("The car list is empty!");
+            return 0;
+        } else {
+            getAll(companyId);
+            System.out.println("Choose the car:");
+        }
         Input input = new Input();
         int decision = input.takeUserDecision(0, cars.size());
         if (decision == 0) {

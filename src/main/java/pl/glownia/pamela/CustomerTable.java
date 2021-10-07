@@ -99,6 +99,32 @@ public class CustomerTable implements CustomerDao {
         }
     }
 
+    @Override
+    public void returnRentedCar(int customerId) {
+        Statement statement;
+        ResultSet resultSet;
+        try {
+            statement = connection.createStatement();
+            String recordToRead = "SELECT CAR.ID " +
+                    "FROM CAR " +
+                    "JOIN CUSTOMER " +
+                    "ON CAR.ID = CUSTOMER.RENTED_CAR_ID " +
+                    "WHERE CUSTOMER.ID = " + customerId;
+            resultSet = statement.executeQuery(recordToRead);
+            if (!resultSet.next()) {
+                System.out.println("You didn't rent a car!");
+            } else {
+                String updateRecord = "UPDATE CUSTOMER SET RENTED_CAR_ID = NULL " +
+                        "WHERE ID = " + customerId;
+                statement.executeUpdate(updateRecord);
+                System.out.println("You returned a rented car.");
+            }
+            statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
     int chooseTheCustomer() {
         Input input = new Input();
         int decision = input.takeUserDecision(0, customers.size());

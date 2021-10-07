@@ -117,11 +117,13 @@ class Menu {
                 case 1:
                     int chosenCompany = companyTable.chooseTheCompany();
                     int chosenCar = carTable.chooseTheCar(chosenCompany);
-                    customerTable.rentACar(customerId, chosenCar);
-                    carTable.getCarName(chosenCar);
+                    if (!companyTable.isEmptyList() && !carTable.isEmptyList(chosenCompany)) {
+                        customerTable.rentACar(customerId, chosenCar);
+                        carTable.getCarName(chosenCar);
+                    }
                     break;
                 case 2:
-                    System.out.println("In progress....");
+                    customerTable.returnRentedCar(customerId);
                     break;
                 case 3:
                     carTable.getRentedCarInfo(customerId);

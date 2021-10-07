@@ -15,5 +15,7 @@ interface CustomerDao {
 
     void getAll();
 
+    void returnRentedCar(int customerId);
+
     void closeConnection();
 }
