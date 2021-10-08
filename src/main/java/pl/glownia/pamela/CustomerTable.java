@@ -35,8 +35,7 @@ public class CustomerTable implements CustomerDao {
     public void addNewCustomer() {
         System.out.println("Enter the customer name:");
         Input input = new Input();
-        String customerName = input.getNewItem();
-        insertRecordToTable(customerName);
+        insertRecordToTable(input.getNewItem());
         System.out.println();
     }
 
@@ -128,14 +127,10 @@ public class CustomerTable implements CustomerDao {
     int chooseTheCustomer() {
         Input input = new Input();
         int decision = input.takeUserDecision(0, customers.size());
-        if (decision == 0) {
-            return 0;
-        }
-        Customer chosenCustomer = customers.stream()
+        return customers.stream()
                 .filter(customer -> customer.getId() == decision)
-                .findAny().orElse(null);
-        assert chosenCustomer != null;
-        return chosenCustomer.getId();
+                .mapToInt(Customer::getId)
+                .findFirst().orElse(0);
     }
 
     @Override

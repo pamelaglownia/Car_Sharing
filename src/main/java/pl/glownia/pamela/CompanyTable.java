@@ -33,8 +33,7 @@ class CompanyTable implements CompanyDao {
     public void addNewCompany() {
         System.out.println("Enter the company name:");
         Input input = new Input();
-        String companyName = input.getNewItem();
-        insertRecordToTable(companyName);
+        insertRecordToTable(input.getNewItem());
         System.out.println();
     }
 
@@ -75,6 +74,7 @@ class CompanyTable implements CompanyDao {
         companies = readRecords();
         System.out.println("Choose the company:");
         companies.forEach(System.out::println);
+        System.out.println("0. Back");
     }
 
     boolean isEmptyList() {
@@ -92,14 +92,10 @@ class CompanyTable implements CompanyDao {
         }
         Input input = new Input();
         int decision = input.takeUserDecision(0, companies.size());
-        if (decision == 0) {
-            return 0;
-        }
-        Company chosenCompany = companies.stream()
+        return companies.stream()
                 .filter(company -> company.getId() == decision)
-                .findAny().orElse(null);
-        assert chosenCompany != null;
-        return chosenCompany.getId();
+                .mapToInt(Company::getId)
+                .findFirst().orElse(0);
     }
 
     void getCompanyName(int userDecision) {

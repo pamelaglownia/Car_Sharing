@@ -32,8 +32,7 @@ class CarTable implements CarDao {
     public void addNewCar(int companyId) {
         System.out.println("Enter the car name:");
         Input input = new Input();
-        String carName = input.getNewItem();
-        insertRecordToTable(carName, companyId);
+        insertRecordToTable(input.getNewItem(), companyId);
         System.out.println();
     }
 
@@ -45,7 +44,7 @@ class CarTable implements CarDao {
                     "VALUES('" + carName + "', " + companyId + ")";
             statement.executeUpdate(recordToInsert);
             System.out.println("The car was created!");
-//            statement.close();
+            statement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
@@ -72,14 +71,12 @@ class CarTable implements CarDao {
 
     @Override
     public void getAll(int companyId) {
-        cars.clear();
         cars = readRecords(companyId);
         System.out.println("Car list:");
         cars.forEach(System.out::println);
     }
 
     boolean isEmptyList(int companyId) {
-        cars.clear();
         cars = readRecords(companyId);
         return cars.isEmpty();
     }
@@ -102,14 +99,10 @@ class CarTable implements CarDao {
         }
         Input input = new Input();
         int decision = input.takeUserDecision(0, cars.size());
-        if (decision == 0) {
-            return 0;
-        }
-        Car chosenCar = cars.stream()
+        return cars.stream()
                 .filter(car -> car.getId() == decision)
-                .findAny().orElse(null);
-        assert chosenCar != null;
-        return chosenCar.getId();
+                .mapToInt(Car::getId)
+                .findFirst().orElse(0);
     }
 
     @Override
