@@ -4,11 +4,13 @@ class Customer {
     private final int id;
     private final String name;
     private final int carId;
+    private final int companyId;
 
-    Customer(int id, String name, int carId) {
+    Customer(int id, String name, int carId, int companyId) {
         this.name = name;
         this.id = id;
         this.carId = carId;
+        this.companyId = companyId;
     }
 
     @Override
@@ -23,4 +25,9 @@ class Customer {
     public String getName() {
         return name;
     }
+
+    public int getCarId() {
+        return carId;
+    }
+
 }

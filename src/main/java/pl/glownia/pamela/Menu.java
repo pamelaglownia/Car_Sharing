@@ -117,9 +117,9 @@ class Menu {
                 case 1:
                     int chosenCompany = companyTable.chooseTheCompany();
                     int chosenCar = carTable.chooseTheCar(chosenCompany);
-                    if (!companyTable.isEmptyList() && !carTable.isEmptyList(chosenCompany)) {
-                        customerTable.rentACar(customerId, chosenCar);
-                        carTable.getCarName(chosenCar);
+                    if (carTable.conditionsToRentAreMet(companyTable, carTable, chosenCompany, chosenCar)) {
+                        customerTable.rentACar(customerId, chosenCar, chosenCompany);
+                        carTable.getCarName(chosenCar, chosenCompany);
                     }
                     break;
                 case 2:

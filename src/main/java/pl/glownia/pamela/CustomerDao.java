@@ -9,7 +9,7 @@ interface CustomerDao {
 
     void insertRecordToTable(String customerName);
 
-    void rentACar(int customerId, int carId);
+    void rentACar(int customerId, int carId, int companyId);
 
     List<Customer> readRecords();
 
