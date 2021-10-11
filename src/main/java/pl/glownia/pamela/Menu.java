@@ -19,7 +19,7 @@ class Menu {
         printer = new Printer();
     }
 
-    void createConnection(String dataBaseFileName) {
+    private void createConnection(String dataBaseFileName) {
         CarSharingJDBC database = new CarSharingJDBC(dataBaseFileName);
         companyTable.createTable(database);
         carTable.createTable(database);
@@ -115,6 +115,10 @@ class Menu {
                 case 0:
                     break;
                 case 1:
+                    if (customerTable.checkIfCustomerRentedACar(customerId)) {
+                        System.out.println("You've already rented a car. Return the car and then you will able to rent another one.");
+                        break;
+                    }
                     int chosenCompany = companyTable.chooseTheCompany();
                     int chosenCar = carTable.chooseTheCar(chosenCompany);
                     if (carTable.conditionsToRentAreMet(companyTable, carTable, chosenCompany, chosenCar)) {

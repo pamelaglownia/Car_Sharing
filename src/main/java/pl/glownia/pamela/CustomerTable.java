@@ -6,11 +6,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-public class CustomerTable implements CustomerDao {
+class CustomerTable implements CustomerDao {
     private Connection connection;
     private List<Customer> customers;
 
-    public CustomerTable(List<Customer> customers) {
+    CustomerTable(List<Customer> customers) {
         this.customers = customers;
     }
 
@@ -52,6 +52,14 @@ public class CustomerTable implements CustomerDao {
         } catch (SQLException exception) {
             exception.printStackTrace();
         }
+    }
+
+    boolean checkIfCustomerRentedACar(int customerId) {
+        customers.clear();
+        customers = readRecords();
+        return customers.stream()
+                .filter(customer -> customer.getId() == customerId)
+                .anyMatch(customer -> customer.getCarId() >= 1);
     }
 
     @Override
@@ -105,7 +113,7 @@ public class CustomerTable implements CustomerDao {
         }
     }
 
-    int getRentedCarId(int customerId) {
+    private int getRentedCarId(int customerId) {
         customers = readRecords();
         return customers.stream()
                 .filter(customer -> customer.getId() == customerId)
