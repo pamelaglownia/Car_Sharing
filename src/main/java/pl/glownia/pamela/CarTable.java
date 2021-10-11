@@ -82,7 +82,7 @@ class CarTable implements CarDao {
         }
     }
 
-    boolean isEmptyList(int companyId) {
+    private boolean isEmptyList(int companyId) {
         cars = readRecords(companyId);
         return cars.isEmpty();
     }
@@ -96,7 +96,9 @@ class CarTable implements CarDao {
     }
 
     int chooseTheCar(int companyId) {
-        if (isEmptyList(companyId)) {
+        if (companyId == 0) {
+            return 0;
+        } else if (isEmptyList(companyId)) {
             System.out.println("The car list is empty!");
             return 0;
         } else {
@@ -125,7 +127,7 @@ class CarTable implements CarDao {
         return !companyTable.isEmptyList() && !carTable.isEmptyList(chosenCompany) && chosenCar != 0;
     }
 
-    boolean isAvailableForRent(int carId) {
+    private boolean isAvailableForRent(int carId) {
         return cars.stream()
                 .filter(car -> car.getId() == carId)
                 .anyMatch(Car::isAvailable);
@@ -150,7 +152,7 @@ class CarTable implements CarDao {
                 int companyId = resultSet.getInt("COMPANY_ID");
                 String companyName = resultSet.getString("NAME");
                 getCarName(carId, companyId);
-                System.out.println("Company:" + companyName);
+                System.out.println("Company: " + companyName);
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
