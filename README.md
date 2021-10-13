@@ -27,10 +27,12 @@ The most valuable concepts of this project (for me) are:
 - OOP,
 - stream API,
 - basis of JDBC,
-- DAO design pattern.
+- DAO design pattern,
+- basis of unit testing.
 
 ### How to run your project? ###
-1. Ensure that you have Java JDK 1.8 or higher.
+1. Ensure that you have Java JDK (1.8 or higher) and Maven (version 3.8.1 or higher).
 2. Clone this repository to your directory.
 3. Go to project directory.
-4. Run the project.
+4. Compile project with Maven (command: mvn install).
+5. Run the project.
