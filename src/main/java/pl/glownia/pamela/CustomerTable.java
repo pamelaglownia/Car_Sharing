@@ -55,7 +55,6 @@ class CustomerTable implements CustomerDao {
     }
 
     boolean checkIfCustomerRentedACar(int customerId) {
-        customers.clear();
         customers = readRecords();
         return customers.stream()
                 .filter(customer -> customer.getId() == customerId)
@@ -82,6 +81,7 @@ class CustomerTable implements CustomerDao {
 
     @Override
     public List<Customer> readRecords() {
+        customers.clear();
         try {
             Statement statement = connection.createStatement();
             String recordToRead = "SELECT ID, NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY FROM CUSTOMER";
@@ -102,7 +102,6 @@ class CustomerTable implements CustomerDao {
 
     @Override
     public void getAll() {
-        customers.clear();
         customers = readRecords();
         if (customers.isEmpty()) {
             System.out.println("The customers list is empty!\n");

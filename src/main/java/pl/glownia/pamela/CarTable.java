@@ -82,12 +82,13 @@ class CarTable implements CarDao {
         }
     }
 
-    private boolean isEmptyList(int companyId) {
+    boolean isEmptyList(int companyId) {
         cars = readRecords(companyId);
         return cars.isEmpty();
     }
 
     void getCarName(int carId, int companyId) {
+        cars = readRecords(companyId);
         Car rentedCar = cars.stream()
                 .filter(car -> car.getId() == carId && car.getCompanyId() == companyId)
                 .findAny().orElse(null);
@@ -105,17 +106,16 @@ class CarTable implements CarDao {
             getAll(companyId);
             System.out.println("Choose the car:");
             Input input = new Input();
-            int decision = input.takeUserDecision(0, cars.size());
-            boolean isAvailable = isAvailableForRent(decision);
+            int chosenCar = input.takeUserDecision(0, cars.size());
+            boolean isAvailable = isAvailableForRent(chosenCar, companyId);
             while (!isAvailable) {
                 System.out.println("This car is already taken. Choose other one or enter 0 to exit:");
-                decision = input.takeUserDecision(0, cars.size());
-                if (decision == 0) {
-                    break;
-                }
-                isAvailable = isAvailableForRent(decision);
+                chosenCar = input.takeUserDecision(0, cars.size());
+                if (chosenCar == 0) {
+                    break;}
+                isAvailable = isAvailableForRent(chosenCar, companyId);
             }
-            int finallyDecision = decision;
+            int finallyDecision = chosenCar;
             return cars.stream()
                     .filter(car -> car.getId() == finallyDecision)
                     .mapToInt(Car::getId)
@@ -127,10 +127,10 @@ class CarTable implements CarDao {
         return !companyTable.isEmptyList() && !carTable.isEmptyList(chosenCompany) && chosenCar != 0;
     }
 
-    private boolean isAvailableForRent(int carId) {
+    boolean isAvailableForRent(int carId, int companyId) {
+        cars = readRecords(companyId);
         return cars.stream()
-                .filter(car -> car.getId() == carId)
-                .anyMatch(Car::isAvailable);
+                .anyMatch(car -> car.getId() == carId && car.getCompanyId() == companyId && car.isAvailable());
     }
 
     @Override

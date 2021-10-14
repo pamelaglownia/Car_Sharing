@@ -9,7 +9,7 @@ class Menu {
     private final Printer printer;
     private final List<Company> companies = new ArrayList<>();
     private final List<Car> cars = new ArrayList<>();
-    private final List<Customer> customers = new ArrayList<>();
+    private List<Customer> customers = new ArrayList<>();
     private final CompanyTable companyTable = new CompanyTable(companies);
     private final CarTable carTable = new CarTable(cars);
     private final CustomerTable customerTable = new CustomerTable(customers);
@@ -29,12 +29,14 @@ class Menu {
     void run() {
         String dataBaseFileName = input.getDataBaseFileName();
         createConnection(dataBaseFileName);
+        System.out.println();
         runInitialMenu();
     }
 
     private void runInitialMenu() {
         printer.printMainMenu();
         int userDecision = input.takeUserDecision(0, 3);
+        System.out.println();
         switch (userDecision) {
             case 0:
                 closeConnections();
@@ -46,6 +48,7 @@ class Menu {
                 customerTable.getAll();
                 if (!customers.isEmpty()) {
                     int customerId = customerTable.chooseTheCustomer();
+                    System.out.println();
                     if (customerId != 0) {
                         makeCustomerDecision(customerId);
                     } else {
@@ -57,6 +60,7 @@ class Menu {
                 break;
             case 3:
                 customerTable.addNewCustomer();
+                System.out.println();
                 runInitialMenu();
                 break;
         }
@@ -67,6 +71,7 @@ class Menu {
         do {
             printer.printCompanyMenu();
             userDecision = input.takeUserDecision(0, 2);
+            System.out.println();
             switch (userDecision) {
                 case 1:
                     int companyId = companyTable.chooseTheCompany();
@@ -76,10 +81,10 @@ class Menu {
                     break;
                 case 2:
                     companyTable.addNewCompany();
+                    System.out.println();
                     makeCompanyDecision();
                     break;
             }
-            System.out.println();
         }
         while (userDecision != 0);
         runInitialMenu();
@@ -92,16 +97,17 @@ class Menu {
             companyTable.getCompanyName(companyIndex);
             printer.printCarMenu();
             userDecision = input.takeUserDecision(0, 2);
+            System.out.println();
             switch (userDecision) {
                 case 1:
                     carTable.getAll(companyIndex);
+                    System.out.println();
                     break;
                 case 2:
                     carTable.addNewCar(companyIndex);
                     makeCarDecision(companyIndex);
                     break;
             }
-            System.out.println();
         } while (userDecision != 0);
         makeCompanyDecision();
     }
@@ -111,29 +117,32 @@ class Menu {
         do {
             printer.printCustomerMenu();
             userDecision = input.takeUserDecision(0, 3);
+            System.out.println();
             switch (userDecision) {
                 case 0:
                     break;
                 case 1:
                     if (customerTable.checkIfCustomerRentedACar(customerId)) {
-                        System.out.println("You've already rented a car. Return the car and then you will able to rent another one.");
+                        System.out.println("You've already rented a car. Return the car and then you will able to rent another one.\n");
                         break;
                     }
                     int chosenCompany = companyTable.chooseTheCompany();
                     int chosenCar = carTable.chooseTheCar(chosenCompany);
                     if (carTable.conditionsToRentAreMet(companyTable, carTable, chosenCompany, chosenCar)) {
                         customerTable.rentACar(customerId, chosenCar, chosenCompany);
-                        carTable.getCarName(chosenCar, chosenCompany);
+                        System.out.println();
                     }
                     break;
                 case 2:
                     customerTable.returnRentedCar(customerId);
+                    System.out.println();
                     break;
                 case 3:
+                    customers = customerTable.readRecords();
                     carTable.getRentedCarInfo(customerId);
+                    System.out.println();
                     break;
             }
-            System.out.println();
         } while (userDecision != 0);
         runInitialMenu();
     }
