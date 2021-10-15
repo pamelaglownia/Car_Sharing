@@ -1,9 +1,6 @@
 package pl.glownia.pamela;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 class CustomerTable implements CustomerDao {
@@ -25,6 +22,7 @@ class CustomerTable implements CustomerDao {
                     "NAME VARCHAR UNIQUE NOT NULL, " +
                     "RENTED_CAR_ID INTEGER DEFAULT NULL, " +
                     "RENTED_CAR_COMPANY INTEGER DEFAULT NULL, " +
+//                    "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(HELPER_NUMBER))";
                     "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID))";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
@@ -64,15 +62,11 @@ class CustomerTable implements CustomerDao {
     @Override
     public void rentACar(int customerId, int carId, int companyId) {
         try {
-            Statement statement = connection.createStatement();
-            String recordToUpdate = "UPDATE CUSTOMER " +
-                    "SET RENTED_CAR_ID = " + carId +
-                    ", RENTED_CAR_COMPANY = " + companyId +
-                    " WHERE ID = " + customerId;
-            statement.executeUpdate(recordToUpdate);
-            String carRecord = "UPDATE CAR SET IS_AVAILABLE = FALSE " +
-                    "WHERE ID = " + carId + " AND COMPANY_ID = " + companyId;
-            statement.executeUpdate(carRecord);
+            PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ?  WHERE ID = ?");
+            statement.setInt(1, carId);
+            statement.setInt(2, companyId);
+            statement.setInt(3, customerId);
+            statement.executeUpdate();
             statement.close();
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -126,21 +120,21 @@ class CustomerTable implements CustomerDao {
         ResultSet resultSet;
         try {
             statement = connection.createStatement();
-            String recordToRead = "SELECT CAR.ID " +
+            String recordToRead = "SELECT CAR.HELPER_NUMBER " +
                     "FROM CAR " +
                     "JOIN CUSTOMER " +
-                    "ON CAR.ID = CUSTOMER.RENTED_CAR_ID " +
+                    "ON CAR.HELPER_NUMBER = CUSTOMER.RENTED_CAR_ID " +
                     "WHERE CUSTOMER.ID = " + customerId;
             resultSet = statement.executeQuery(recordToRead);
             if (!resultSet.next()) {
                 System.out.println("You didn't rent a car!");
             } else {
+                String carRecord = "UPDATE CAR SET IS_AVAILABLE = TRUE " +
+                        "WHERE HELPER_NUMBER = " + getRentedCarId(customerId);
+                statement.executeUpdate(carRecord);
                 String customerRecord = "UPDATE CUSTOMER SET RENTED_CAR_ID = NULL, RENTED_CAR_COMPANY = NULL " +
                         "WHERE ID = " + customerId;
                 statement.executeUpdate(customerRecord);
-                String carRecord = "UPDATE CAR SET IS_AVAILABLE = TRUE " +
-                        "WHERE ID = " + getRentedCarId(customerId);
-                statement.executeUpdate(carRecord);
                 System.out.println("You returned a rented car.");
             }
             statement.close();

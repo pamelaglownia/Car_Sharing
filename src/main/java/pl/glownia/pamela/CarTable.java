@@ -2,6 +2,7 @@ package pl.glownia.pamela;
 
 import java.sql.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 class CarTable implements CarDao {
     private Connection connection;
@@ -19,9 +20,10 @@ class CarTable implements CarDao {
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS CAR (" +
                     "ID INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "HELPER_NUMBER INT NOT NULL, " +
                     "NAME VARCHAR UNIQUE NOT NULL, " +
                     "COMPANY_ID INT NOT NULL, " +
-                    "IS_AVAILABLE BOOLEAN DEFAULT TRUE, " +
+                    "IS_AVAILABLE BOOLEAN, " +
                     "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID))";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
@@ -34,15 +36,27 @@ class CarTable implements CarDao {
         System.out.println("Enter the car name:");
         Input input = new Input();
         insertRecordToTable(input.getNewItem(), companyId);
-        System.out.println();
+    }
+
+    public int setId(int companyId) {
+        cars = readRecords(companyId);
+        List<Car> selectedCars = cars.stream()
+                .filter(car -> car.getCompanyId() == companyId)
+                .collect(Collectors.toList());
+        if (selectedCars.isEmpty()) {
+            return 1;
+        } else {
+            return selectedCars.size() + 1;
+        }
     }
 
     @Override
     public void insertRecordToTable(String carName, int companyId) {
         try {
             Statement statement = connection.createStatement();
-            String recordToInsert = "INSERT INTO CAR (NAME, COMPANY_ID) " +
-                    "VALUES('" + carName + "', " + companyId + ")";
+            int id = setId(companyId);
+            String recordToInsert = "INSERT INTO CAR (HELPER_NUMBER, NAME, COMPANY_ID, IS_AVAILABLE) " +
+                    "VALUES(" + id + ",'" + carName + "', " + companyId + ", TRUE)";
             statement.executeUpdate(recordToInsert);
             System.out.println("The car was created!");
             statement.close();
@@ -56,14 +70,13 @@ class CarTable implements CarDao {
         cars.clear();
         try {
             Statement statement = connection.createStatement();
-            String recordToRead = "SELECT NAME, IS_AVAILABLE FROM CAR WHERE COMPANY_ID = " + companyId;
+            String recordToRead = "SELECT HELPER_NUMBER, NAME, IS_AVAILABLE FROM CAR WHERE COMPANY_ID = " + companyId;
             ResultSet resultSet = statement.executeQuery(recordToRead);
-            int id = 1;
             while (resultSet.next()) {
+                int id = resultSet.getInt("HELPER_NUMBER");
                 String name = resultSet.getString("NAME");
                 boolean isAvailable = resultSet.getBoolean("IS_AVAILABLE");
                 cars.add(new Car(id, name, companyId, isAvailable));
-                id++;
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -112,7 +125,8 @@ class CarTable implements CarDao {
                 System.out.println("This car is already taken. Choose other one or enter 0 to exit:");
                 chosenCar = input.takeUserDecision(0, cars.size());
                 if (chosenCar == 0) {
-                    break;}
+                    break;
+                }
                 isAvailable = isAvailableForRent(chosenCar, companyId);
             }
             int finallyDecision = chosenCar;
@@ -131,6 +145,21 @@ class CarTable implements CarDao {
         cars = readRecords(companyId);
         return cars.stream()
                 .anyMatch(car -> car.getId() == carId && car.getCompanyId() == companyId && car.isAvailable());
+    }
+
+    void updateInformationAboutCar(int customerId, int carId, int companyId) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE CAR SET IS_AVAILABLE = ? " +
+                    "WHERE HELPER_NUMBER = ? AND COMPANY_ID = ?");
+            statement.setBoolean(1, false);
+            statement.setInt(2, carId);
+            statement.setInt(3, companyId);
+            statement.executeUpdate();
+            statement.close();
+            getRentedCarInfo(customerId);
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
     }
 
     @Override

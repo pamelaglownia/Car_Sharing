@@ -130,6 +130,7 @@ class Menu {
                     int chosenCar = carTable.chooseTheCar(chosenCompany);
                     if (carTable.conditionsToRentAreMet(companyTable, carTable, chosenCompany, chosenCar)) {
                         customerTable.rentACar(customerId, chosenCar, chosenCompany);
+                        carTable.updateInformationAboutCar(customerId, chosenCar, chosenCompany);
                         System.out.println();
                     }
                     break;
