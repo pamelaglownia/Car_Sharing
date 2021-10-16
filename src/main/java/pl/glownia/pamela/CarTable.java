@@ -53,11 +53,13 @@ class CarTable implements CarDao {
     @Override
     public void insertRecordToTable(String carName, int companyId) {
         try {
-            Statement statement = connection.createStatement();
-            int id = setId(companyId);
-            String recordToInsert = "INSERT INTO CAR (HELPER_NUMBER, NAME, COMPANY_ID, IS_AVAILABLE) " +
-                    "VALUES(" + id + ",'" + carName + "', " + companyId + ", TRUE)";
-            statement.executeUpdate(recordToInsert);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO CAR (HELPER_NUMBER, NAME, COMPANY_ID, IS_AVAILABLE) " +
+                    "VALUES(?, ?, ?, ?)");
+            statement.setInt(1, setId(companyId));
+            statement.setString(2, carName);
+            statement.setInt(3, companyId);
+            statement.setBoolean(4, true);
+            statement.executeUpdate();
             System.out.println("The car was created!");
             statement.close();
         } catch (SQLException exception) {
@@ -69,9 +71,9 @@ class CarTable implements CarDao {
     public List<Car> readRecords(int companyId) {
         cars.clear();
         try {
-            Statement statement = connection.createStatement();
-            String recordToRead = "SELECT HELPER_NUMBER, NAME, IS_AVAILABLE FROM CAR WHERE COMPANY_ID = " + companyId;
-            ResultSet resultSet = statement.executeQuery(recordToRead);
+            PreparedStatement statement = connection.prepareStatement("SELECT HELPER_NUMBER, NAME, IS_AVAILABLE FROM CAR WHERE COMPANY_ID = ?");
+            statement.setInt(1, companyId);
+            ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 int id = resultSet.getInt("HELPER_NUMBER");
                 String name = resultSet.getString("NAME");
@@ -120,6 +122,9 @@ class CarTable implements CarDao {
             System.out.println("Choose the car:");
             Input input = new Input();
             int chosenCar = input.takeUserDecision(0, cars.size());
+            if (chosenCar == 0) {
+                return 0;
+            }
             boolean isAvailable = isAvailableForRent(chosenCar, companyId);
             while (!isAvailable) {
                 System.out.println("This car is already taken. Choose other one or enter 0 to exit:");
@@ -165,15 +170,15 @@ class CarTable implements CarDao {
     @Override
     public void getRentedCarInfo(int customerId) {
         try {
-            Statement statement = connection.createStatement();
-            String recordToRead = "SELECT CUSTOMER.RENTED_CAR_ID, COMPANY.NAME AS NAME, COMPANY.ID AS COMPANY_ID " +
+            PreparedStatement statement = connection.prepareStatement("SELECT CUSTOMER.RENTED_CAR_ID, COMPANY.NAME AS NAME, COMPANY.ID AS COMPANY_ID " +
                     "FROM CUSTOMER " +
                     "JOIN COMPANY " +
                     "ON COMPANY.ID = CUSTOMER.RENTED_CAR_COMPANY " +
                     "JOIN CAR " +
                     "ON CAR.COMPANY_ID = COMPANY.ID " +
-                    "WHERE CUSTOMER.ID = " + customerId;
-            ResultSet resultSet = statement.executeQuery(recordToRead);
+                    "WHERE CUSTOMER.ID = ?");
+            statement.setInt(1, customerId);
+            ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
                 System.out.println("You didn't rent a car!");
             } else {

@@ -22,7 +22,6 @@ class CustomerTable implements CustomerDao {
                     "NAME VARCHAR UNIQUE NOT NULL, " +
                     "RENTED_CAR_ID INTEGER DEFAULT NULL, " +
                     "RENTED_CAR_COMPANY INTEGER DEFAULT NULL, " +
-//                    "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(HELPER_NUMBER))";
                     "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID))";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
@@ -41,10 +40,10 @@ class CustomerTable implements CustomerDao {
     @Override
     public void insertRecordToTable(String customerName) {
         try {
-            Statement statement = connection.createStatement();
-            String recordToInsert = "INSERT INTO CUSTOMER (NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
-                    "VALUES('" + customerName + "', DEFAULT, DEFAULT)";
-            statement.executeUpdate(recordToInsert);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO CUSTOMER (NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
+                    "VALUES(?, DEFAULT, DEFAULT)");
+            statement.setString(1,customerName);
+            statement.executeUpdate();
             System.out.println("The customer was added!");
             statement.close();
         } catch (SQLException exception) {
@@ -116,25 +115,30 @@ class CustomerTable implements CustomerDao {
 
     @Override
     public void returnRentedCar(int customerId) {
-        Statement statement;
+        PreparedStatement statement;
         ResultSet resultSet;
         try {
-            statement = connection.createStatement();
-            String recordToRead = "SELECT CAR.HELPER_NUMBER " +
+            statement = connection.prepareStatement("SELECT CAR.HELPER_NUMBER " +
                     "FROM CAR " +
                     "JOIN CUSTOMER " +
                     "ON CAR.HELPER_NUMBER = CUSTOMER.RENTED_CAR_ID " +
-                    "WHERE CUSTOMER.ID = " + customerId;
-            resultSet = statement.executeQuery(recordToRead);
+                    "WHERE CUSTOMER.ID = ?");
+            statement.setInt(1,customerId);
+            resultSet = statement.executeQuery();
             if (!resultSet.next()) {
                 System.out.println("You didn't rent a car!");
             } else {
-                String carRecord = "UPDATE CAR SET IS_AVAILABLE = TRUE " +
-                        "WHERE HELPER_NUMBER = " + getRentedCarId(customerId);
-                statement.executeUpdate(carRecord);
-                String customerRecord = "UPDATE CUSTOMER SET RENTED_CAR_ID = NULL, RENTED_CAR_COMPANY = NULL " +
-                        "WHERE ID = " + customerId;
-                statement.executeUpdate(customerRecord);
+                statement = connection.prepareStatement("UPDATE CAR SET IS_AVAILABLE = ? " +
+                        "WHERE HELPER_NUMBER = ?");
+                statement.setBoolean(1, true);
+                statement.setInt(2, getRentedCarId(customerId));
+                statement.executeUpdate();
+                statement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ? " +
+                        "WHERE ID = ?");
+                statement.setString(1, null);
+                statement.setString(2, null);
+                statement.setInt(3, customerId);
+                statement.executeUpdate();
                 System.out.println("You returned a rented car.");
             }
             statement.close();

@@ -1,9 +1,6 @@
 package pl.glownia.pamela;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.List;
 
 class CompanyTable implements CompanyDao {
@@ -40,10 +37,10 @@ class CompanyTable implements CompanyDao {
     @Override
     public void insertRecordToTable(String companyName) {
         try {
-            Statement statement = connection.createStatement();
-            String recordToInsert = "INSERT INTO COMPANY (NAME)" +
-                    "VALUES('" + companyName + "')";
-            statement.executeUpdate(recordToInsert);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO COMPANY (NAME)" +
+                    "VALUES(?)");
+            statement.setString(1, companyName);
+            statement.executeUpdate();
             System.out.println("The company was created!");
             statement.close();
         } catch (SQLException exception) {
