@@ -5,8 +5,6 @@ import java.util.List;
 interface CompanyDao {
     void createTable(CarSharingJDBC dataBase);
 
-    void addNewCompany();
-
     void insertRecordToTable(String companyName);
 
     List<Company> readRecords();
