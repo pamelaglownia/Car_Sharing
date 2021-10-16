@@ -31,14 +31,13 @@ class CarTable implements CarDao {
         }
     }
 
-    @Override
-    public void addNewCar(int companyId) {
+    void addNewCar(int companyId) {
         System.out.println("Enter the car name:");
         Input input = new Input();
         insertRecordToTable(input.getNewItem(), companyId);
     }
 
-    public int setId(int companyId) {
+    private int setCarHelperNumber(int companyId) {
         cars = readRecords(companyId);
         List<Car> selectedCars = cars.stream()
                 .filter(car -> car.getCompanyId() == companyId)
@@ -55,7 +54,7 @@ class CarTable implements CarDao {
         try {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO CAR (HELPER_NUMBER, NAME, COMPANY_ID, IS_AVAILABLE) " +
                     "VALUES(?, ?, ?, ?)");
-            statement.setInt(1, setId(companyId));
+            statement.setInt(1, setCarHelperNumber(companyId));
             statement.setString(2, carName);
             statement.setInt(3, companyId);
             statement.setBoolean(4, true);
@@ -97,18 +96,18 @@ class CarTable implements CarDao {
         }
     }
 
-    boolean isEmptyList(int companyId) {
+    private boolean isEmptyList(int companyId) {
         cars = readRecords(companyId);
         return cars.isEmpty();
     }
 
-    void getCarName(int carId, int companyId) {
+    private void getCarName(int carId, int companyId) {
         cars = readRecords(companyId);
-        Car rentedCar = cars.stream()
+        String rentedCarName = cars.stream()
                 .filter(car -> car.getId() == carId && car.getCompanyId() == companyId)
-                .findAny().orElse(null);
-        assert rentedCar != null;
-        System.out.println("You rented " + rentedCar.getName() + ".");
+                .map(Car::getName)
+                .findFirst().orElse(null);
+        System.out.println("You rented: " + rentedCarName + ".");
     }
 
     int chooseTheCar(int companyId) {
@@ -167,8 +166,7 @@ class CarTable implements CarDao {
         }
     }
 
-    @Override
-    public void getRentedCarInfo(int customerId) {
+    void getRentedCarInfo(int customerId) {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT CUSTOMER.RENTED_CAR_ID, COMPANY.NAME AS NAME, COMPANY.ID AS COMPANY_ID " +
                     "FROM CUSTOMER " +

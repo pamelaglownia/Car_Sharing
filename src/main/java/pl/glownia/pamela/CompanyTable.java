@@ -7,7 +7,7 @@ class CompanyTable implements CompanyDao {
     private Connection connection;
     private List<Company> companies;
 
-    public CompanyTable(List<Company> companies) {
+    CompanyTable(List<Company> companies) {
         this.companies = companies;
     }
 
@@ -26,8 +26,7 @@ class CompanyTable implements CompanyDao {
         }
     }
 
-    @Override
-    public void addNewCompany() {
+    void addNewCompany() {
         System.out.println("Enter the company name:");
         Input input = new Input();
         insertRecordToTable(input.getNewItem());
@@ -50,6 +49,7 @@ class CompanyTable implements CompanyDao {
 
     @Override
     public List<Company> readRecords() {
+        companies.clear();
         try {
             Statement statement = connection.createStatement();
             String recordToRead = "SELECT ID, NAME FROM COMPANY";
@@ -67,7 +67,6 @@ class CompanyTable implements CompanyDao {
 
     @Override
     public void getAll() {
-        companies.clear();
         companies = readRecords();
         System.out.println("Choose the company:");
         companies.forEach(System.out::println);
@@ -75,7 +74,6 @@ class CompanyTable implements CompanyDao {
     }
 
     boolean isEmptyList() {
-        companies.clear();
         companies = readRecords();
         return companies.isEmpty();
     }
@@ -96,11 +94,12 @@ class CompanyTable implements CompanyDao {
     }
 
     void getCompanyName(int userDecision) {
-        Company chosenCompany = companies.stream()
+        companies = readRecords();
+        String chosenCompanyName = companies.stream()
                 .filter(company -> company.getId() == userDecision)
-                .findAny().orElse(null);
-        assert chosenCompany != null;
-        System.out.println("'" + chosenCompany.getName() + "' company:");
+                .map(Company::getName)
+                .findFirst().orElse(null);
+        System.out.println("'" + chosenCompanyName + "' company:");
     }
 
     @Override
