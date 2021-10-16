@@ -29,8 +29,7 @@ class CustomerTable implements CustomerDao {
         }
     }
 
-    @Override
-    public void addNewCustomer() {
+    void addNewCustomer() {
         System.out.println("Enter the customer name:");
         Input input = new Input();
         insertRecordToTable(input.getNewItem());
@@ -42,7 +41,7 @@ class CustomerTable implements CustomerDao {
         try {
             PreparedStatement statement = connection.prepareStatement("INSERT INTO CUSTOMER (NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
                     "VALUES(?, DEFAULT, DEFAULT)");
-            statement.setString(1,customerName);
+            statement.setString(1, customerName);
             statement.executeUpdate();
             System.out.println("The customer was added!");
             statement.close();
@@ -58,8 +57,7 @@ class CustomerTable implements CustomerDao {
                 .anyMatch(customer -> customer.getCarId() >= 1);
     }
 
-    @Override
-    public void rentACar(int customerId, int carId, int companyId) {
+    void rentACar(int customerId, int carId, int companyId) {
         try {
             PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ?  WHERE ID = ?");
             statement.setInt(1, carId);
@@ -113,8 +111,7 @@ class CustomerTable implements CustomerDao {
                 .findFirst().orElse(0);
     }
 
-    @Override
-    public void returnRentedCar(int customerId) {
+    void returnRentedCar(int customerId) {
         PreparedStatement statement;
         ResultSet resultSet;
         try {
@@ -123,7 +120,7 @@ class CustomerTable implements CustomerDao {
                     "JOIN CUSTOMER " +
                     "ON CAR.HELPER_NUMBER = CUSTOMER.RENTED_CAR_ID " +
                     "WHERE CUSTOMER.ID = ?");
-            statement.setInt(1,customerId);
+            statement.setInt(1, customerId);
             resultSet = statement.executeQuery();
             if (!resultSet.next()) {
                 System.out.println("You didn't rent a car!");

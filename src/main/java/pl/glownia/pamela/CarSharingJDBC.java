@@ -22,7 +22,7 @@ class CarSharingJDBC {
         }
     }
 
-    String getUrl(String dataBaseFileName) {
+    private String getUrl(String dataBaseFileName) {
         return DB_URL + dataBaseFileName;
     }
 

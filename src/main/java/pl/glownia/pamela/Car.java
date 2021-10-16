@@ -13,11 +13,11 @@ class Car {
         this.isAvailable = isAvailable;
     }
 
-    public int getId() {
+    int getId() {
         return id;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
@@ -26,11 +26,11 @@ class Car {
         return id + ". " + name;
     }
 
-    public boolean isAvailable() {
+    boolean isAvailable() {
         return isAvailable;
     }
 
-    public int getCompanyId() {
+    int getCompanyId() {
         return companyId;
     }
 }

@@ -18,15 +18,11 @@ class Customer {
         return id + ". " + name;
     }
 
-    public int getId() {
+    int getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public int getCarId() {
+    int getCarId() {
         return carId;
     }
 
