@@ -3,7 +3,6 @@ package pl.glownia.pamela;
 enum MainMenuOption {
     MANAGER_LOGIN(1, "Log in as a manager"),
     CUSTOMER_LOGIN(2, "Log in as a customer"),
-    CUSTOMER_CREATOR(3, "Create a customer"),
     EXIT(0, "Exit");
 
     private final int number;
