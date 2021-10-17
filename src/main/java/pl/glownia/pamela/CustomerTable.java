@@ -18,8 +18,8 @@ class CustomerTable implements CustomerDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS CUSTOMER (" +
-                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "NAME VARCHAR UNIQUE NOT NULL, " +
+                    "ID INT, " +
+                    "NAME VARCHAR PRIMARY KEY NOT NULL, " +
                     "RENTED_CAR_ID INTEGER DEFAULT NULL, " +
                     "RENTED_CAR_COMPANY INTEGER DEFAULT NULL, " +
                     "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID))";
@@ -33,15 +33,24 @@ class CustomerTable implements CustomerDao {
         System.out.println("Enter the customer name:");
         Input input = new Input();
         insertRecordToTable(input.getNewItem());
-        System.out.println();
+    }
+
+    int setCustomerId() {
+        customers = readRecords();
+        if (customers.isEmpty()) {
+            return 1;
+        } else {
+            return customers.size() + 1;
+        }
     }
 
     @Override
     public void insertRecordToTable(String customerName) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO CUSTOMER (NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
-                    "VALUES(?, DEFAULT, DEFAULT)");
-            statement.setString(1, customerName);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO CUSTOMER (ID, NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
+                    "VALUES(?, ?, DEFAULT, DEFAULT)");
+            statement.setInt(1, setCustomerId());
+            statement.setString(2, customerName);
             statement.executeUpdate();
             System.out.println("The customer was added!");
             statement.close();
@@ -50,7 +59,7 @@ class CustomerTable implements CustomerDao {
         }
     }
 
-    boolean checkIfCustomerRentedACar(int customerId) {
+    boolean customerRentedACar(int customerId) {
         customers = readRecords();
         return customers.stream()
                 .filter(customer -> customer.getId() == customerId)
@@ -145,12 +154,54 @@ class CustomerTable implements CustomerDao {
     }
 
     int chooseTheCustomer() {
+        getAll();
+        if (customers.isEmpty()) {
+            return 0;
+        }
         Input input = new Input();
         int decision = input.takeUserDecision(0, customers.size());
         return customers.stream()
                 .filter(customer -> customer.getId() == decision)
                 .mapToInt(Customer::getId)
                 .findFirst().orElse(0);
+    }
+
+    @Override
+    public void deleteCustomer() {
+        int customerId = chooseTheCustomer();
+        if (customerId != 0) {
+            if (!customerRentedACar(customerId)) {
+                try {
+                    PreparedStatement statement = connection.prepareStatement("DELETE FROM CUSTOMER WHERE ID= ?");
+                    statement.setInt(1, customerId);
+                    statement.executeUpdate();
+                    statement.close();
+                    updateCustomersId(customerId);
+                    System.out.println("Customer was deleted.");
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
+            } else {
+                System.out.println("You can't delete customer who rented a car.");
+            }
+        }
+    }
+
+    void updateCustomersId(int customerId) {
+        customers = readRecords();
+        for (Customer customer : customers) {
+            if (customer.getId() > customerId) {
+                try {
+                    PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET ID = ? WHERE ID > ?");
+                    statement.setInt(1, customer.getId() - 1);
+                    statement.setInt(2, customerId);
+                    statement.executeUpdate();
+                    statement.close();
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override

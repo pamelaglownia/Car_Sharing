@@ -11,5 +11,7 @@ interface CustomerDao {
 
     void getAll();
 
+    void deleteCustomer();
+
     void closeConnection();
 }

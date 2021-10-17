@@ -39,8 +39,6 @@ class Menu {
                 makeManagerDecision();
                 break;
             case 2:
-                customerTable.getAll();
-                if (!customers.isEmpty()) {
                     int customerId = customerTable.chooseTheCustomer();
                     System.out.println();
                     if (customerId != 0) {
@@ -48,9 +46,6 @@ class Menu {
                     } else {
                         runInitialMenu();
                     }
-                } else {
-                    runInitialMenu();
-                }
                 break;
         }
     }
@@ -74,15 +69,15 @@ class Menu {
                     makeManagerDecision();
                     break;
                 case 3:
-                    customerTable.addNewCustomer();
-                    System.out.println();
-                    runInitialMenu();
+                    System.out.println("In progress...");
                     break;
                 case 4:
-                    System.out.println("In progress...");
+                    customerTable.addNewCustomer();
+                    System.out.println();
                     break;
                 case 5:
-                    System.out.println("In progress...");
+                    customerTable.deleteCustomer();
+                    System.out.println();
                     break;
             }
         }
