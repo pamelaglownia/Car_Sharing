@@ -11,5 +11,7 @@ interface CarDao {
 
     void getAll(int companyId);
 
+    void deleteCar(int carId);
+
     void closeConnection();
 }

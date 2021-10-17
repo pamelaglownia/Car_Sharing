@@ -4,7 +4,8 @@ enum CarMenuOption {
 
     CAR_LIST(1, "Car list"),
     CAR_CREATOR(2, "Create a car"),
-    BACK(3, "Back");
+    CAR_DELETION(3, "Delete a car"),
+    BACK(0, "Back");
 
     private final int number;
     private final String text;

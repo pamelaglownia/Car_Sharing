@@ -29,14 +29,14 @@ class Menu {
 
     private void runInitialMenu() {
         MainMenuOption.printMainMenu();
-        int userDecision = MainMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
+        int userDecision = MainMenuOption.checkUserDecision(input.takeUserDecision(0, 2));
         System.out.println();
         switch (userDecision) {
             case 0:
                 closeConnections();
                 System.exit(0);
             case 1:
-                makeCompanyDecision();
+                makeManagerDecision();
                 break;
             case 2:
                 customerTable.getAll();
@@ -52,19 +52,14 @@ class Menu {
                     runInitialMenu();
                 }
                 break;
-            case 3:
-                customerTable.addNewCustomer();
-                System.out.println();
-                runInitialMenu();
-                break;
         }
     }
 
-    private void makeCompanyDecision() {
+    private void makeManagerDecision() {
         int userDecision;
         do {
-            CompanyMenuOption.printCompanyMenu();
-            userDecision = CompanyMenuOption.checkUserDecision(input.takeUserDecision(0, 2));
+            ManagerMenuOption.printManagerMenu();
+            userDecision = ManagerMenuOption.checkUserDecision(input.takeUserDecision(0, 5));
             System.out.println();
             switch (userDecision) {
                 case 1:
@@ -76,7 +71,18 @@ class Menu {
                 case 2:
                     companyTable.addNewCompany();
                     System.out.println();
-                    makeCompanyDecision();
+                    makeManagerDecision();
+                    break;
+                case 3:
+                    customerTable.addNewCustomer();
+                    System.out.println();
+                    runInitialMenu();
+                    break;
+                case 4:
+                    System.out.println("In progress...");
+                    break;
+                case 5:
+                    System.out.println("In progress...");
                     break;
             }
         }
@@ -90,35 +96,34 @@ class Menu {
         do {
             companyTable.getCompanyName(companyIndex);
             CarMenuOption.printCarMenu();
-            userDecision = CarMenuOption.checkUserDecision(input.takeUserDecision(0, 2));
+            userDecision = CarMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
             System.out.println();
             switch (userDecision) {
                 case 1:
                     carTable.getAll(companyIndex);
-                    System.out.println();
                     break;
                 case 2:
                     carTable.addNewCar(companyIndex);
+                    System.out.println();
                     makeCarDecision(companyIndex);
                     break;
+                case 3:
+                    carTable.deleteCar(companyIndex);
             }
+            System.out.println();
         } while (userDecision != 0);
-        makeCompanyDecision();
+        makeManagerDecision();
     }
 
     private void makeCustomerDecision(int customerId) {
         int userDecision;
         do {
-//            printer.printCustomerMenu();
             CustomerMenuOption.printCustomerMenu();
-//            userDecision = input.takeUserDecision(0, 3);
             userDecision = CustomerMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
             System.out.println();
             switch (userDecision) {
-                case 0:
-                    break;
                 case 1:
-                    if (customerTable.checkIfCustomerRentedACar(customerId)) {
+                    if (customerTable.customerRentedACar(customerId)) {
                         System.out.println("You've already rented a car. Return the car and then you will able to rent another one.\n");
                         break;
                     }

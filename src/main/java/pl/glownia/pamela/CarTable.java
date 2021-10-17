@@ -126,7 +126,7 @@ class CarTable implements CarDao {
             }
             boolean isAvailable = isAvailableForRent(chosenCar, companyId);
             while (!isAvailable) {
-                System.out.println("This car is already taken. Choose other one or enter 0 to exit:");
+                System.out.println("You can't choose this car. Choose other one or enter 0 to exit:");
                 chosenCar = input.takeUserDecision(0, cars.size());
                 if (chosenCar == 0) {
                     break;
@@ -188,6 +188,23 @@ class CarTable implements CarDao {
             }
         } catch (SQLException exception) {
             exception.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteCar(int companyId) {
+        int carId = chooseTheCar(companyId);
+        if (isAvailableForRent(carId, companyId)) {
+            try {
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM CAR WHERE HELPER_NUMBER = ? AND COMPANY_ID = ?");
+                statement.setInt(1, carId);
+                statement.setInt(2, companyId);
+                statement.executeUpdate();
+                statement.close();
+                System.out.println("Car was deleted.");
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
         }
     }
 
