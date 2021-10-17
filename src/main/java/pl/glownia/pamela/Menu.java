@@ -5,19 +5,13 @@ import java.util.List;
 
 class Menu {
 
-    private final Input input;
-    private final Printer printer;
+    private final Input input = new Input();
     private final List<Company> companies = new ArrayList<>();
     private final List<Car> cars = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
     private final CompanyTable companyTable = new CompanyTable(companies);
     private final CarTable carTable = new CarTable(cars);
     private final CustomerTable customerTable = new CustomerTable(customers);
-
-    Menu() {
-        input = new Input();
-        printer = new Printer();
-    }
 
     private void createConnection(String dataBaseFileName) {
         CarSharingJDBC database = new CarSharingJDBC(dataBaseFileName);
@@ -34,8 +28,8 @@ class Menu {
     }
 
     private void runInitialMenu() {
-        printer.printMainMenu();
-        int userDecision = input.takeUserDecision(0, 3);
+        MainMenuOption.printMainMenu();
+        int userDecision = MainMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
         System.out.println();
         switch (userDecision) {
             case 0:
@@ -69,8 +63,8 @@ class Menu {
     private void makeCompanyDecision() {
         int userDecision;
         do {
-            printer.printCompanyMenu();
-            userDecision = input.takeUserDecision(0, 2);
+            CompanyMenuOption.printCompanyMenu();
+            userDecision = CompanyMenuOption.checkUserDecision(input.takeUserDecision(0, 2));
             System.out.println();
             switch (userDecision) {
                 case 1:
@@ -95,8 +89,8 @@ class Menu {
         int userDecision;
         do {
             companyTable.getCompanyName(companyIndex);
-            printer.printCarMenu();
-            userDecision = input.takeUserDecision(0, 2);
+            CarMenuOption.printCarMenu();
+            userDecision = CarMenuOption.checkUserDecision(input.takeUserDecision(0, 2));
             System.out.println();
             switch (userDecision) {
                 case 1:
@@ -115,8 +109,10 @@ class Menu {
     private void makeCustomerDecision(int customerId) {
         int userDecision;
         do {
-            printer.printCustomerMenu();
-            userDecision = input.takeUserDecision(0, 3);
+//            printer.printCustomerMenu();
+            CustomerMenuOption.printCustomerMenu();
+//            userDecision = input.takeUserDecision(0, 3);
+            userDecision = CustomerMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
             System.out.println();
             switch (userDecision) {
                 case 0:
