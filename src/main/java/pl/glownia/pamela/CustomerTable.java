@@ -22,7 +22,7 @@ class CustomerTable implements CustomerDao {
                     "NAME VARCHAR PRIMARY KEY NOT NULL, " +
                     "RENTED_CAR_ID INTEGER DEFAULT NULL, " +
                     "RENTED_CAR_COMPANY INTEGER DEFAULT NULL, " +
-                    "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID))";
+                    "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID) ON DELETE CASCADE ON UPDATE CASCADE)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();

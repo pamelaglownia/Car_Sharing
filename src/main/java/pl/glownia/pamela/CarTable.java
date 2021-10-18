@@ -24,7 +24,7 @@ class CarTable implements CarDao {
                     "NAME VARCHAR UNIQUE NOT NULL, " +
                     "COMPANY_ID INT NOT NULL, " +
                     "IS_AVAILABLE BOOLEAN, " +
-                    "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID))";
+                    "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID) ON DELETE CASCADE ON UPDATE CASCADE)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -201,9 +201,32 @@ class CarTable implements CarDao {
                 statement.setInt(2, companyId);
                 statement.executeUpdate();
                 statement.close();
+                updateCarsId(carId, companyId);
                 System.out.println("Car was deleted.");
             } catch (SQLException exception) {
                 exception.printStackTrace();
+            }
+        }
+    }
+
+    void updateCarsId(int carId, int companyId) {
+        cars = readRecords(companyId);
+        List<Car> carsFromOneCompany = cars.stream()
+                .filter(car -> car.getCompanyId() == companyId)
+                .collect(Collectors.toList());
+        for (Car car : carsFromOneCompany) {
+            if (car.getId() > carId) {
+                try {
+                    PreparedStatement statement = connection.prepareStatement("UPDATE CAR SET ID = ?, HELPER_NUMBER = ? WHERE HELPER_NUMBER > ? AND COMPANY_ID = ?");
+                    statement.setInt(1, car.getId() - 1);
+                    statement.setInt(2, car.getId() - 1);
+                    statement.setInt(3, carId);
+                    statement.setInt(4, companyId);
+                    statement.executeUpdate();
+                    statement.close();
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
             }
         }
     }
