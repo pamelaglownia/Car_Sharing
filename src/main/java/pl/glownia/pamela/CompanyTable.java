@@ -18,8 +18,9 @@ class CompanyTable implements CompanyDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS COMPANY (" +
-                    "ID INT NOT NULL, " +
-                    "NAME VARCHAR PRIMARY KEY NOT NULL)";
+                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "HELPER_NUMBER INT NOT NULL, " +
+                    "NAME VARCHAR NOT NULL)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -45,7 +46,7 @@ class CompanyTable implements CompanyDao {
     @Override
     public void insertRecordToTable(String companyName) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO COMPANY (ID, NAME)" +
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO COMPANY (HELPER_NUMBER, NAME)" +
                     "VALUES(?, ?)");
             statement.setInt(1, setCompanyId());
             statement.setString(2, companyName);
@@ -62,10 +63,10 @@ class CompanyTable implements CompanyDao {
         companies.clear();
         try {
             Statement statement = connection.createStatement();
-            String recordToRead = "SELECT ID, NAME FROM COMPANY";
+            String recordToRead = "SELECT HELPER_NUMBER, NAME FROM COMPANY";
             ResultSet resultSet = statement.executeQuery(recordToRead);
             while (resultSet.next()) {
-                int id = resultSet.getInt("ID");
+                int id = resultSet.getInt("HELPER_NUMBER");
                 String name = resultSet.getString("NAME");
                 companies.add(new Company(id, name));
             }
@@ -116,7 +117,7 @@ class CompanyTable implements CompanyDao {
     public void deleteCompany(int companyId) {
         if (companyId != 0) {
             try {
-                PreparedStatement statement = connection.prepareStatement("DELETE FROM COMPANY WHERE ID= ?");
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM COMPANY WHERE HELPER_NUMBER = ?");
                 statement.setInt(1, companyId);
                 statement.executeUpdate();
                 statement.close();
@@ -128,20 +129,14 @@ class CompanyTable implements CompanyDao {
         }
     }
 
-    private void updateCompaniesId(int companyId) {
-        companies = readRecords();
-        for (Company company : companies) {
-            if (company.getId() > companyId) {
-                try {
-                    PreparedStatement statement = connection.prepareStatement("UPDATE COMPANY SET ID = ? WHERE ID > ?");
-                    statement.setInt(1, company.getId() - 1);
-                    statement.setInt(2, companyId);
-                    statement.executeUpdate();
-                    statement.close();
-                } catch (SQLException exception) {
-                    exception.printStackTrace();
-                }
-            }
+    void updateCompaniesId(int companyId) {
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE COMPANY SET HELPER_NUMBER = HELPER_NUMBER-1 WHERE HELPER_NUMBER > ?");
+            statement.setInt(1, companyId);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
     }
 

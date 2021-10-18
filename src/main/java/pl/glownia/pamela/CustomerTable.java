@@ -18,11 +18,12 @@ class CustomerTable implements CustomerDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS CUSTOMER (" +
-                    "ID INT, " +
-                    "NAME VARCHAR PRIMARY KEY NOT NULL, " +
-                    "RENTED_CAR_ID INTEGER DEFAULT NULL, " +
-                    "RENTED_CAR_COMPANY INTEGER DEFAULT NULL, " +
-                    "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID) ON DELETE CASCADE ON UPDATE CASCADE)";
+                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
+                    "HELPER_NUMBER INT NOT NULL, " +
+                    "NAME VARCHAR NOT NULL, " +
+                    "RENTED_CAR_ID INT DEFAULT NULL, " +
+                    "RENTED_CAR_COMPANY INT DEFAULT NULL, " +
+                    "FOREIGN KEY(RENTED_CAR_ID) REFERENCES CAR(ID) ON DELETE CASCADE)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -47,7 +48,7 @@ class CustomerTable implements CustomerDao {
     @Override
     public void insertRecordToTable(String customerName) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO CUSTOMER (ID, NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO CUSTOMER (HELPER_NUMBER, NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY) " +
                     "VALUES(?, ?, DEFAULT, DEFAULT)");
             statement.setInt(1, setCustomerId());
             statement.setString(2, customerName);
@@ -68,7 +69,7 @@ class CustomerTable implements CustomerDao {
 
     void rentACar(int customerId, int carId, int companyId) {
         try {
-            PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ?  WHERE ID = ?");
+            PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ?  WHERE HELPER_NUMBER = ?");
             statement.setInt(1, carId);
             statement.setInt(2, companyId);
             statement.setInt(3, customerId);
@@ -84,10 +85,10 @@ class CustomerTable implements CustomerDao {
         customers.clear();
         try {
             Statement statement = connection.createStatement();
-            String recordToRead = "SELECT ID, NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY FROM CUSTOMER";
+            String recordToRead = "SELECT HELPER_NUMBER, NAME, RENTED_CAR_ID, RENTED_CAR_COMPANY FROM CUSTOMER";
             ResultSet resultSet = statement.executeQuery(recordToRead);
             while (resultSet.next()) {
-                int id = resultSet.getInt("ID");
+                int id = resultSet.getInt("HELPER_NUMBER");
                 String name = resultSet.getString("NAME");
                 int carId = resultSet.getInt("RENTED_CAR_ID");
                 int companyId = resultSet.getInt("RENTED_CAR_COMPANY");
@@ -128,7 +129,7 @@ class CustomerTable implements CustomerDao {
                     "FROM CAR " +
                     "JOIN CUSTOMER " +
                     "ON CAR.HELPER_NUMBER = CUSTOMER.RENTED_CAR_ID " +
-                    "WHERE CUSTOMER.ID = ?");
+                    "WHERE CUSTOMER.HELPER_NUMBER = ?");
             statement.setInt(1, customerId);
             resultSet = statement.executeQuery();
             if (!resultSet.next()) {
@@ -140,7 +141,7 @@ class CustomerTable implements CustomerDao {
                 statement.setInt(2, getRentedCarId(customerId));
                 statement.executeUpdate();
                 statement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ? " +
-                        "WHERE ID = ?");
+                        "WHERE HELPER_NUMBER = ?");
                 statement.setString(1, null);
                 statement.setString(2, null);
                 statement.setInt(3, customerId);
@@ -172,7 +173,7 @@ class CustomerTable implements CustomerDao {
         if (customerId != 0) {
             if (!customerRentedACar(customerId)) {
                 try {
-                    PreparedStatement statement = connection.prepareStatement("DELETE FROM CUSTOMER WHERE ID= ?");
+                    PreparedStatement statement = connection.prepareStatement("DELETE FROM CUSTOMER WHERE HELPER_NUMBER = ?");
                     statement.setInt(1, customerId);
                     statement.executeUpdate();
                     statement.close();
@@ -188,19 +189,13 @@ class CustomerTable implements CustomerDao {
     }
 
     void updateCustomersId(int customerId) {
-        customers = readRecords();
-        for (Customer customer : customers) {
-            if (customer.getId() > customerId) {
-                try {
-                    PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET ID = ? WHERE ID > ?");
-                    statement.setInt(1, customer.getId() - 1);
-                    statement.setInt(2, customerId);
-                    statement.executeUpdate();
-                    statement.close();
-                } catch (SQLException exception) {
-                    exception.printStackTrace();
-                }
-            }
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE CUSTOMER SET HELPER_NUMBER = HELPER_NUMBER - 1 WHERE HELPER_NUMBER > ?");
+            statement.setInt(1, customerId);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
     }
 

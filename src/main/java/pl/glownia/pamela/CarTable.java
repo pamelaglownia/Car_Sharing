@@ -21,10 +21,10 @@ class CarTable implements CarDao {
             String table = "CREATE TABLE IF NOT EXISTS CAR (" +
                     "ID INT PRIMARY KEY AUTO_INCREMENT, " +
                     "HELPER_NUMBER INT NOT NULL, " +
-                    "NAME VARCHAR UNIQUE NOT NULL, " +
+                    "NAME VARCHAR NOT NULL, " +
                     "COMPANY_ID INT NOT NULL, " +
                     "IS_AVAILABLE BOOLEAN, " +
-                    "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID) ON DELETE CASCADE ON UPDATE CASCADE)";
+                    "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID) ON DELETE CASCADE)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -168,13 +168,13 @@ class CarTable implements CarDao {
 
     void getRentedCarInfo(int customerId) {
         try {
-            PreparedStatement statement = connection.prepareStatement("SELECT CUSTOMER.RENTED_CAR_ID, COMPANY.NAME AS NAME, COMPANY.ID AS COMPANY_ID " +
+            PreparedStatement statement = connection.prepareStatement("SELECT CUSTOMER.RENTED_CAR_ID, COMPANY.NAME AS NAME, COMPANY.HELPER_NUMBER AS COMPANY_ID " +
                     "FROM CUSTOMER " +
                     "JOIN COMPANY " +
-                    "ON COMPANY.ID = CUSTOMER.RENTED_CAR_COMPANY " +
+                    "ON COMPANY.HELPER_NUMBER = CUSTOMER.RENTED_CAR_COMPANY " +
                     "JOIN CAR " +
-                    "ON CAR.COMPANY_ID = COMPANY.ID " +
-                    "WHERE CUSTOMER.ID = ?");
+                    "ON CAR.COMPANY_ID = COMPANY.HELPER_NUMBER " +
+                    "WHERE CUSTOMER.HELPER_NUMBER = ?");
             statement.setInt(1, customerId);
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
@@ -210,24 +210,14 @@ class CarTable implements CarDao {
     }
 
     void updateCarsId(int carId, int companyId) {
-        cars = readRecords(companyId);
-        List<Car> carsFromOneCompany = cars.stream()
-                .filter(car -> car.getCompanyId() == companyId)
-                .collect(Collectors.toList());
-        for (Car car : carsFromOneCompany) {
-            if (car.getId() > carId) {
-                try {
-                    PreparedStatement statement = connection.prepareStatement("UPDATE CAR SET ID = ?, HELPER_NUMBER = ? WHERE HELPER_NUMBER > ? AND COMPANY_ID = ?");
-                    statement.setInt(1, car.getId() - 1);
-                    statement.setInt(2, car.getId() - 1);
-                    statement.setInt(3, carId);
-                    statement.setInt(4, companyId);
-                    statement.executeUpdate();
-                    statement.close();
-                } catch (SQLException exception) {
-                    exception.printStackTrace();
-                }
-            }
+        try {
+            PreparedStatement statement = connection.prepareStatement("UPDATE CAR SET HELPER_NUMBER = HELPER_NUMBER-1 WHERE HELPER_NUMBER > ? AND COMPANY_ID = ?");
+            statement.setInt(1, carId);
+            statement.setInt(2, companyId);
+            statement.executeUpdate();
+            statement.close();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
         }
     }
 
