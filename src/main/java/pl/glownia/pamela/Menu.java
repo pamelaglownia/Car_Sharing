@@ -123,7 +123,7 @@ class Menu {
             switch (userDecision) {
                 case 1:
                     if (customerTable.customerRentedACar(customerId)) {
-                        System.out.println("You've already rented a car. Return the car and then you will able to rent another one.\n");
+                        System.out.println("You've already rented a car. Return the car and before you rent another one.\n");
                         break;
                     }
                     int chosenCompany = companyTable.chooseTheCompany();
