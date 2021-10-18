@@ -18,8 +18,8 @@ class CompanyTable implements CompanyDao {
             //Execute a query
             Statement statement = connection.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS COMPANY (" +
-                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "NAME VARCHAR UNIQUE NOT NULL)";
+                    "ID INT NOT NULL, " +
+                    "NAME VARCHAR PRIMARY KEY NOT NULL)";
             statement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -33,12 +33,22 @@ class CompanyTable implements CompanyDao {
         System.out.println();
     }
 
+    int setCompanyId() {
+        companies = readRecords();
+        if (companies.isEmpty()) {
+            return 1;
+        } else {
+            return companies.size() + 1;
+        }
+    }
+
     @Override
     public void insertRecordToTable(String companyName) {
         try {
-            PreparedStatement statement = connection.prepareStatement("INSERT INTO COMPANY (NAME)" +
-                    "VALUES(?)");
-            statement.setString(1, companyName);
+            PreparedStatement statement = connection.prepareStatement("INSERT INTO COMPANY (ID, NAME)" +
+                    "VALUES(?, ?)");
+            statement.setInt(1, setCompanyId());
+            statement.setString(2, companyName);
             statement.executeUpdate();
             System.out.println("The company was created!");
             statement.close();
@@ -100,6 +110,39 @@ class CompanyTable implements CompanyDao {
                 .map(Company::getName)
                 .findFirst().orElse(null);
         System.out.println("'" + chosenCompanyName + "' company:");
+    }
+
+    @Override
+    public void deleteCompany(int companyId) {
+        if (companyId != 0) {
+            try {
+                PreparedStatement statement = connection.prepareStatement("DELETE FROM COMPANY WHERE ID= ?");
+                statement.setInt(1, companyId);
+                statement.executeUpdate();
+                statement.close();
+                updateCompaniesId(companyId);
+                System.out.println("Company was deleted.");
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+        }
+    }
+
+    private void updateCompaniesId(int companyId) {
+        companies = readRecords();
+        for (Company company : companies) {
+            if (company.getId() > companyId) {
+                try {
+                    PreparedStatement statement = connection.prepareStatement("UPDATE COMPANY SET ID = ? WHERE ID > ?");
+                    statement.setInt(1, company.getId() - 1);
+                    statement.setInt(2, companyId);
+                    statement.executeUpdate();
+                    statement.close();
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override

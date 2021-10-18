@@ -7,7 +7,7 @@ class Menu {
 
     private final Input input = new Input();
     private final List<Company> companies = new ArrayList<>();
-    private final List<Car> cars = new ArrayList<>();
+    private List<Car> cars = new ArrayList<>();
     private List<Customer> customers = new ArrayList<>();
     private final CompanyTable companyTable = new CompanyTable(companies);
     private final CarTable carTable = new CarTable(cars);
@@ -39,13 +39,13 @@ class Menu {
                 makeManagerDecision();
                 break;
             case 2:
-                    int customerId = customerTable.chooseTheCustomer();
-                    System.out.println();
-                    if (customerId != 0) {
-                        makeCustomerDecision(customerId);
-                    } else {
-                        runInitialMenu();
-                    }
+                int customerId = customerTable.chooseTheCustomer();
+                System.out.println();
+                if (customerId != 0) {
+                    makeCustomerDecision(customerId);
+                } else {
+                    runInitialMenu();
+                }
                 break;
         }
     }
@@ -69,21 +69,25 @@ class Menu {
                     makeManagerDecision();
                     break;
                 case 3:
-                    System.out.println("In progress...");
+                    int companyToDelete = companyTable.chooseTheCompany();
+                    cars = carTable.readRecords(companyToDelete);
+                    if (cars.isEmpty()) {
+                        companyTable.deleteCompany(companyToDelete);
+                    } else {
+                        System.out.println("You can't delete company with cars.");
+                    }
                     break;
                 case 4:
                     customerTable.addNewCustomer();
-                    System.out.println();
                     break;
                 case 5:
                     customerTable.deleteCustomer();
-                    System.out.println();
                     break;
             }
+            System.out.println();
         }
         while (userDecision != 0);
         runInitialMenu();
-
     }
 
     private void makeCarDecision(int companyIndex) {

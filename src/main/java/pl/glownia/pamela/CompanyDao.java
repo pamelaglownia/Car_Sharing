@@ -11,5 +11,7 @@ interface CompanyDao {
 
     void getAll();
 
+    void deleteCompany(int companyId);
+
     void closeConnection();
 }
