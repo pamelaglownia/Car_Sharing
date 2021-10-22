@@ -1,45 +1,44 @@
 package pl.glownia.pamela;
 
-import java.util.ArrayList;
-import java.util.List;
+import pl.glownia.pamela.car.CarService;
+import pl.glownia.pamela.company.CompanyService;
+import pl.glownia.pamela.customer.CustomerService;
+
 
 class Menu {
+    private final DataBaseConnection dataBaseConnection;
+    private CompanyService companyService;
+    private CarService carService;
+    private CustomerService customerService;
+    private UserDecision userDecision;
 
-    private final Input input = new Input();
-    private final List<Company> companies = new ArrayList<>();
-    private List<Car> cars = new ArrayList<>();
-    private List<Customer> customers = new ArrayList<>();
-    private final CompanyTable companyTable = new CompanyTable(companies);
-    private final CarTable carTable = new CarTable(cars);
-    private final CustomerTable customerTable = new CustomerTable(customers);
-
-    private void createConnection(String dataBaseFileName) {
-        CarSharingJDBC database = new CarSharingJDBC(dataBaseFileName);
-        companyTable.createTable(database);
-        carTable.createTable(database);
-        customerTable.createTable(database);
+    public Menu() {
+        dataBaseConnection = new DataBaseConnection();
     }
 
     void run() {
-        String dataBaseFileName = input.getDataBaseFileName();
-        createConnection(dataBaseFileName);
+        dataBaseConnection.createConnection();
+        companyService = new CompanyService(dataBaseConnection);
+        carService = new CarService(dataBaseConnection);
+        customerService = new CustomerService(dataBaseConnection);
+        userDecision = new UserDecision();
         System.out.println();
         runInitialMenu();
     }
 
     private void runInitialMenu() {
-        MainMenuOption.printMainMenu();
-        int userDecision = MainMenuOption.checkUserDecision(input.takeUserDecision(0, 2));
+        int option = userDecision.chooseOptionFromInitialMenu();
         System.out.println();
-        switch (userDecision) {
+        switch (option) {
             case 0:
                 closeConnections();
                 System.exit(0);
             case 1:
                 makeManagerDecision();
+                System.out.println();
                 break;
             case 2:
-                int customerId = customerTable.chooseTheCustomer();
+                int customerId = customerService.chooseTheCustomer();
                 System.out.println();
                 if (customerId != 0) {
                     makeCustomerDecision(customerId);
@@ -51,107 +50,102 @@ class Menu {
     }
 
     private void makeManagerDecision() {
-        int userDecision;
+        int option;
         do {
-            ManagerMenuOption.printManagerMenu();
-            userDecision = ManagerMenuOption.checkUserDecision(input.takeUserDecision(0, 5));
+            option = userDecision.chooseOptionFromManagerMenu();
             System.out.println();
-            switch (userDecision) {
+            switch (option) {
                 case 1:
-                    int companyId = companyTable.chooseTheCompany();
+                    int companyId = companyService.chooseTheCompany();
                     if (companyId != 0) {
+                        System.out.println();
                         makeCarDecision(companyId);
                     }
                     break;
                 case 2:
-                    companyTable.addNewCompany();
-                    System.out.println();
-                    makeManagerDecision();
+                    companyService.addNewCompany();
                     break;
                 case 3:
-                    int companyToDelete = companyTable.chooseTheCompany();
-                    cars = carTable.readRecords(companyToDelete);
-                    if (cars.isEmpty()) {
-                        companyTable.deleteCompany(companyToDelete);
+                    int companyToDelete = companyService.chooseTheCompany();
+                    if (carService.isEmptyList(companyToDelete)) {
+                        companyService.deleteCompanyFromList(companyToDelete);
                     } else {
                         System.out.println("You can't delete company with cars.");
                     }
                     break;
                 case 4:
-                    customerTable.addNewCustomer();
+                    customerService.addNewCustomer();
                     break;
                 case 5:
-                    customerTable.deleteCustomer();
+                    customerService.deleteChosenCustomer();
                     break;
             }
             System.out.println();
         }
-        while (userDecision != 0);
+        while (option != 0);
         runInitialMenu();
     }
 
-    private void makeCarDecision(int companyIndex) {
-        int userDecision;
+    private void makeCarDecision(int companyId) {
+        int option;
         do {
-            companyTable.getCompanyName(companyIndex);
-            CarMenuOption.printCarMenu();
-            userDecision = CarMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
+            companyService.getCompanyName(companyId);
+            option = userDecision.chooseOptionFromCarMenu();
             System.out.println();
-            switch (userDecision) {
+            switch (option) {
                 case 1:
-                    carTable.getAll(companyIndex);
+                    carService.getAll(companyId);
                     break;
                 case 2:
-                    carTable.addNewCar(companyIndex);
+                    carService.addNewCar(companyId);
                     System.out.println();
-                    makeCarDecision(companyIndex);
                     break;
                 case 3:
-                    carTable.deleteCar(companyIndex);
+                    carService.deleteChosenCar(companyId);
             }
             System.out.println();
-        } while (userDecision != 0);
+        } while (option != 0);
         makeManagerDecision();
     }
 
     private void makeCustomerDecision(int customerId) {
-        int userDecision;
+        int option;
         do {
-            CustomerMenuOption.printCustomerMenu();
-            userDecision = CustomerMenuOption.checkUserDecision(input.takeUserDecision(0, 3));
+            option = userDecision.chooseOptionFromCustomerMenu();
             System.out.println();
-            switch (userDecision) {
+            switch (option) {
                 case 1:
-                    if (customerTable.customerRentedACar(customerId)) {
-                        System.out.println("You've already rented a car. Return the car and before you rent another one.\n");
+                    if (customerService.carIsAlreadyRented(customerId)) {
+                        System.out.println("You've already rented a car. Return the car before you rent another one.\n");
                         break;
                     }
-                    int chosenCompany = companyTable.chooseTheCompany();
-                    int chosenCar = carTable.chooseTheCar(chosenCompany);
-                    if (carTable.conditionsToRentAreMet(companyTable, carTable, chosenCompany, chosenCar)) {
-                        customerTable.rentACar(customerId, chosenCar, chosenCompany);
-                        carTable.updateInformationAboutCar(customerId, chosenCar, chosenCompany);
+                    int chosenCompany = companyService.chooseTheCompany();
+                    int chosenCar = carService.chooseTheCar(chosenCompany);
+                    if (!carService.isEmptyList(chosenCompany) && !companyService.isEmptyList() && chosenCar != 0) {
+                        customerService.rentChosenCar(customerId, chosenCar, chosenCompany);
+                        carService.updateInformationAfterRentingCar(customerId, chosenCar, chosenCompany);
                         System.out.println();
+                    } else {
+                        System.out.println("Renting this car is not possible.");
                     }
                     break;
                 case 2:
-                    customerTable.returnRentedCar(customerId);
+                    customerService.returnRentedCar(customerId);
                     System.out.println();
                     break;
                 case 3:
-                    customers = customerTable.readRecords();
-                    carTable.getRentedCarInfo(customerId);
+                    carService.getInfoAboutRentedCar(customerId);
                     System.out.println();
                     break;
             }
-        } while (userDecision != 0);
+        } while (option != 0);
         runInitialMenu();
     }
 
     private void closeConnections() {
-        companyTable.closeConnection();
-        carTable.closeConnection();
-        customerTable.closeConnection();
+        companyService.closeCompanyConnection();
+        carService.closeCarConnection();
+        customerService.closeCustomerConnection();
         System.out.println("Closing...");
     }
 }

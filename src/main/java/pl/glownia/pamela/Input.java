@@ -2,7 +2,7 @@ package pl.glownia.pamela;
 
 import java.util.Scanner;
 
-class Input {
+public class Input {
     private final Scanner scanner = new Scanner(System.in);
 
     private String[] takeDataBaseName() {
@@ -27,7 +27,7 @@ class Input {
         }
     }
 
-    int takeUserDecision(int firstNumber, int lastNumber) {
+    public int takeUserDecision(int firstNumber, int lastNumber) {
         int userDecision;
         while (!scanner.hasNextInt()) {
             System.out.println("Incorrect value. Enter number again:");
@@ -42,7 +42,7 @@ class Input {
         return userDecision;
     }
 
-    String getNewItem() {
+    public String getNewItem() {
         String itemName = scanner.nextLine();
         while (itemName.equals("")) {
             System.out.println("Name can not be empty. Enter again:");

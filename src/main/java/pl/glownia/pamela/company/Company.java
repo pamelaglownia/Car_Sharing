@@ -1,4 +1,4 @@
-package pl.glownia.pamela;
+package pl.glownia.pamela.company;
 
 class Company {
     private final int id;

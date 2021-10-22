@@ -1,4 +1,4 @@
-package pl.glownia.pamela;
+package pl.glownia.pamela.car;
 
 class Car {
     private final int id;

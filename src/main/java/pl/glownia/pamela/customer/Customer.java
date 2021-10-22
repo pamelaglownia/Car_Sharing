@@ -1,4 +1,4 @@
-package pl.glownia.pamela;
+package pl.glownia.pamela.customer;
 
 class Customer {
     private final int id;
@@ -25,5 +25,4 @@ class Customer {
     int getCarId() {
         return carId;
     }
-
 }
