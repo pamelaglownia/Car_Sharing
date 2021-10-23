@@ -47,7 +47,8 @@ class CustomerRepository {
 
     void rentACar(int customerId, int carId, int companyId) {
         try {
-            PreparedStatement rentingStatement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ?  WHERE HELPER_NUMBER = ?");
+            PreparedStatement rentingStatement = connection.prepareStatement("UPDATE CUSTOMER SET RENTED_CAR_ID = ?, RENTED_CAR_COMPANY = ?  " +
+                    "WHERE HELPER_NUMBER = ?");
             rentingStatement.setInt(1, carId);
             rentingStatement.setInt(2, companyId);
             rentingStatement.setInt(3, customerId);
@@ -113,7 +114,8 @@ class CustomerRepository {
 
     void deleteCustomer(int customerId) {
         try {
-            PreparedStatement deletingStatement = connection.prepareStatement("DELETE FROM CUSTOMER WHERE HELPER_NUMBER = ?");
+            PreparedStatement deletingStatement = connection.prepareStatement("DELETE FROM CUSTOMER " +
+                    "WHERE HELPER_NUMBER = ?");
             deletingStatement.setInt(1, customerId);
             deletingStatement.executeUpdate();
             deletingStatement.close();
@@ -126,7 +128,8 @@ class CustomerRepository {
 
     private void updateCustomersId(int customerId) {
         try {
-            PreparedStatement updatingStatement = connection.prepareStatement("UPDATE CUSTOMER SET HELPER_NUMBER = HELPER_NUMBER - 1 WHERE HELPER_NUMBER > ?");
+            PreparedStatement updatingStatement = connection.prepareStatement("UPDATE CUSTOMER SET HELPER_NUMBER = HELPER_NUMBER - 1 " +
+                    "WHERE HELPER_NUMBER > ?");
             updatingStatement.setInt(1, customerId);
             updatingStatement.executeUpdate();
             updatingStatement.close();

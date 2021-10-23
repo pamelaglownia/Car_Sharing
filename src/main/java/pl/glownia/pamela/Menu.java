@@ -121,12 +121,14 @@ class Menu {
                     }
                     int chosenCompany = companyService.chooseTheCompany();
                     int chosenCar = carService.chooseTheCar(chosenCompany);
-                    if (!carService.isEmptyList(chosenCompany) && !companyService.isEmptyList() && chosenCar != 0) {
-                        customerService.rentChosenCar(customerId, chosenCar, chosenCompany);
-                        carService.updateInformationAfterRentingCar(customerId, chosenCar, chosenCompany);
-                        System.out.println();
-                    } else {
-                        System.out.println("Renting this car is not possible.");
+                    if (chosenCar != 0) {
+                        if (!carService.isEmptyList(chosenCompany) && !companyService.isEmptyList()) {
+                            customerService.rentChosenCar(customerId, chosenCar, chosenCompany);
+                            carService.updateInformationAfterRentingCar(customerId, chosenCar, chosenCompany);
+                            System.out.println();
+                        } else {
+                            System.out.println("Renting this car is not possible.");
+                        }
                     }
                     break;
                 case 2:

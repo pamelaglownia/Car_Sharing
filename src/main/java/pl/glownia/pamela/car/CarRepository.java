@@ -24,7 +24,7 @@ class CarRepository {
                     "NAME VARCHAR NOT NULL, " +
                     "COMPANY_ID INT NOT NULL, " +
                     "IS_AVAILABLE BOOLEAN, " +
-                    "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID) ON UPDATE CASCADE ON DELETE CASCADE)";
+                    "FOREIGN KEY(COMPANY_ID) REFERENCES COMPANY(ID) ON DELETE CASCADE)";
             creatingStatement.executeUpdate(table);
         } catch (SQLException exception) {
             exception.printStackTrace();
@@ -82,21 +82,20 @@ class CarRepository {
 
     void getRentedCarInfo(int customerId) {
         try {
-            PreparedStatement readingStatement = connection.prepareStatement("SELECT CAR.NAME AS CAR_NAME, COMPANY.NAME AS NAME " +
-                    "FROM CUSTOMER " +
+            PreparedStatement readingStatement = connection.prepareStatement("SELECT CAR.NAME AS CAR, COMPANY.NAME AS COMPANY FROM CAR " +
+                    "JOIN CUSTOMER " +
+                    "ON CUSTOMER.RENTED_CAR_ID = CAR.HELPER_NUMBER " +
                     "JOIN COMPANY " +
-                    "ON COMPANY.HELPER_NUMBER = CUSTOMER.RENTED_CAR_COMPANY " +
-                    "JOIN CAR " +
-                    "ON CAR.COMPANY_ID = COMPANY.HELPER_NUMBER " +
-                    "WHERE CUSTOMER.HELPER_NUMBER = ?");
+                    "ON COMPANY.ID = CAR.COMPANY_ID " +
+                    "WHERE CUSTOMER.HELPER_NUMBER = ? AND COMPANY_ID = CUSTOMER.RENTED_CAR_COMPANY");
             readingStatement.setInt(1, customerId);
             ResultSet rentedCar = readingStatement.executeQuery();
             if (!rentedCar.next()) {
                 System.out.println("You didn't rent a car!");
             } else {
-                String rentedCarName = rentedCar.getString("CAR_NAME");
-                String companyName = rentedCar.getString("NAME");
-                System.out.println("You rented: " + rentedCarName + ".");
+                String carName = rentedCar.getString("CAR");
+                String companyName = rentedCar.getString("COMPANY");
+                System.out.println("You rented: " + carName);
                 System.out.println("Company: " + companyName);
             }
         } catch (SQLException exception) {
@@ -106,7 +105,8 @@ class CarRepository {
 
     void deleteCar(int carId, int companyId) {
         try {
-            PreparedStatement deletingStatement = connection.prepareStatement("DELETE FROM CAR WHERE HELPER_NUMBER = ? AND COMPANY_ID = ?");
+            PreparedStatement deletingStatement = connection.prepareStatement("DELETE FROM CAR " +
+                    "WHERE HELPER_NUMBER = ? AND COMPANY_ID = ?");
             deletingStatement.setInt(1, carId);
             deletingStatement.setInt(2, companyId);
             deletingStatement.executeUpdate();
@@ -120,7 +120,8 @@ class CarRepository {
 
     private void updateCarsId(int carId, int companyId) {
         try {
-            PreparedStatement updatingStatement = connection.prepareStatement("UPDATE CAR SET HELPER_NUMBER = HELPER_NUMBER-1 WHERE HELPER_NUMBER > ? AND COMPANY_ID = ?");
+            PreparedStatement updatingStatement = connection.prepareStatement("UPDATE CAR SET HELPER_NUMBER = HELPER_NUMBER-1 " +
+                    "WHERE HELPER_NUMBER > ? AND COMPANY_ID = ?");
             updatingStatement.setInt(1, carId);
             updatingStatement.setInt(2, companyId);
             updatingStatement.executeUpdate();

@@ -19,8 +19,7 @@ class CompanyRepository {
         try {
             Statement creatingStatement = connection.createStatement();
             String companyTable = "CREATE TABLE IF NOT EXISTS COMPANY (" +
-                    "ID INT PRIMARY KEY AUTO_INCREMENT, " +
-                    "HELPER_NUMBER INT NOT NULL, " +
+                    "ID INT NOT NULL, " +
                     "NAME VARCHAR NOT NULL)";
             creatingStatement.executeUpdate(companyTable);
         } catch (SQLException exception) {
@@ -30,7 +29,7 @@ class CompanyRepository {
 
     void insertRecordToTable(int companyId, String companyName) {
         try {
-            PreparedStatement insertingStatement = connection.prepareStatement("INSERT INTO COMPANY (HELPER_NUMBER, NAME)" +
+            PreparedStatement insertingStatement = connection.prepareStatement("INSERT INTO COMPANY (ID, NAME)" +
                     "VALUES(?, ?)");
             insertingStatement.setInt(1, companyId);
             insertingStatement.setString(2, companyName);
@@ -46,10 +45,10 @@ class CompanyRepository {
         companies.clear();
         try {
             Statement readingStatement = connection.createStatement();
-            String recordToRead = "SELECT HELPER_NUMBER, NAME FROM COMPANY";
+            String recordToRead = "SELECT ID, NAME FROM COMPANY";
             ResultSet company = readingStatement.executeQuery(recordToRead);
             while (company.next()) {
-                int companyId = company.getInt("HELPER_NUMBER");
+                int companyId = company.getInt("ID");
                 String companyName = company.getString("NAME");
                 companies.add(new Company(companyId, companyName));
             }
@@ -61,7 +60,8 @@ class CompanyRepository {
 
     void deleteCompany(int companyId) {
         try {
-            PreparedStatement deletingStatement = connection.prepareStatement("DELETE FROM COMPANY WHERE HELPER_NUMBER = ?");
+            PreparedStatement deletingStatement = connection.prepareStatement("DELETE FROM COMPANY " +
+                    "WHERE ID = ?");
             deletingStatement.setInt(1, companyId);
             deletingStatement.executeUpdate();
             deletingStatement.close();
@@ -74,7 +74,8 @@ class CompanyRepository {
 
     private void updateCompaniesId(int companyId) {
         try {
-            PreparedStatement updatingStatement = connection.prepareStatement("UPDATE COMPANY SET HELPER_NUMBER = HELPER_NUMBER-1 WHERE HELPER_NUMBER > ?");
+            PreparedStatement updatingStatement = connection.prepareStatement("UPDATE COMPANY SET ID = ID-1 " +
+                    "WHERE ID > ?");
             updatingStatement.setInt(1, companyId);
             updatingStatement.executeUpdate();
             updatingStatement.close();
