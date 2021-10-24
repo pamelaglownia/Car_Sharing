@@ -24,7 +24,7 @@ Project's tasks come from JetBrains Academy.
 3. Log in as a customer:
    - rent a car,
    - return rented car,
-   - read information about your rented car.
+   - read information about rented car.
 
 ### Motivation ###
 
@@ -32,9 +32,8 @@ Project was created to develop skills related to OOP and databases.
 The most valuable concepts of this project (for me) are:
 - OOP,
 - stream API,
-- basis of sql,
-- basis of JDBC,
-- DAO design pattern.
+- basis of SQL,
+- basis of JDBC.
 
 ### How to run project? ###
 
