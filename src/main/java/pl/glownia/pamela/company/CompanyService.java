@@ -35,9 +35,13 @@ public class CompanyService {
 
     private void getAll() {
         companies = companyRepository.readRecords();
-        System.out.println("Choose the company:");
-        companies.forEach(System.out::println);
-        System.out.println("0. Back");
+        if (companies.isEmpty()) {
+            System.out.println("The company list is empty!");
+        } else {
+            System.out.println("Choose the company:");
+            companies.forEach(System.out::println);
+            System.out.println("0. Back");
+        }
     }
 
     public boolean isEmptyList() {
@@ -46,17 +50,17 @@ public class CompanyService {
     }
 
     public int chooseTheCompany() {
-        if (isEmptyList()) {
-            System.out.println("The company list is empty!");
+        getAll();
+        if (companies.isEmpty()) {
             return 0;
         } else {
-            getAll();
+            int chosenCompany = input.takeUserDecision(0, companies.size());
+            if (chosenCompany == 0) {
+                return 0;
+            } else {
+                return companies.get(chosenCompany - 1).getId();
+            }
         }
-        int decision = input.takeUserDecision(0, companies.size());
-        return companies.stream()
-                .filter(company -> company.getId() == decision)
-                .mapToInt(Company::getId)
-                .findFirst().orElse(0);
     }
 
     public void deleteCompanyFromList(int companyToDelete) {
@@ -67,10 +71,7 @@ public class CompanyService {
 
     public void getCompanyName(int userDecision) {
         companies = companyRepository.readRecords();
-        String chosenCompanyName = companies.stream()
-                .filter(company -> company.getId() == userDecision)
-                .map(Company::getName)
-                .findFirst().orElse(null);
+        String chosenCompanyName = companies.get(userDecision - 1).getName();
         System.out.println("'" + chosenCompanyName + "' company:");
     }
 

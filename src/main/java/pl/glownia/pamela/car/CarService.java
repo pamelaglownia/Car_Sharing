@@ -45,6 +45,7 @@ public class CarService {
         } else {
             System.out.println("Car list:");
             cars.forEach(System.out::println);
+            System.out.println("0. Back");
         }
     }
 
@@ -62,7 +63,6 @@ public class CarService {
         } else {
             System.out.println("Choose the car:");
             getAll(companyId);
-            System.out.println("0. Back");
             int chosenCar = input.takeUserDecision(0, cars.size());
             if (chosenCar == 0) {
                 return 0;
@@ -76,11 +76,7 @@ public class CarService {
                 }
                 isAvailable = isAvailableForRent(chosenCar, companyId);
             }
-            int finallyDecision = chosenCar;
-            return cars.stream()
-                    .filter(car -> car.getId() == finallyDecision)
-                    .mapToInt(Car::getId)
-                    .findAny().orElse(0);
+            return cars.get(chosenCar - 1).getId();
         }
     }
 

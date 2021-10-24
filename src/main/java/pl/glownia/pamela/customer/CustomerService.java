@@ -51,11 +51,12 @@ public class CustomerService {
         if (customers.isEmpty()) {
             return 0;
         }
-        int decision = input.takeUserDecision(0, customers.size());
-        return customers.stream()
-                .filter(customer -> customer.getId() == decision)
-                .mapToInt(Customer::getId)
-                .findFirst().orElse(0);
+        int chosenCustomer = input.takeUserDecision(0, customers.size());
+        if (chosenCustomer == 0) {
+            return 0;
+        } else {
+            return customers.get(chosenCustomer - 1).getId();
+        }
     }
 
     public void deleteChosenCustomer() {
@@ -82,10 +83,8 @@ public class CustomerService {
 
     private int getRentedCarId(int customerId) {
         customers = customerRepository.readRecords();
-        return customers.stream()
-                .filter(customer -> customer.getId() == customerId)
-                .mapToInt(Customer::getCarId)
-                .findFirst().orElse(0);
+        System.out.println(customers.get(customerId - 1).getCarId());
+        return customers.get(customerId - 1).getCarId();
     }
 
 
