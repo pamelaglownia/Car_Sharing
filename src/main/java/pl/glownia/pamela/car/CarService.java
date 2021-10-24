@@ -45,7 +45,6 @@ public class CarService {
         } else {
             System.out.println("Car list:");
             cars.forEach(System.out::println);
-            System.out.println("0. Back");
         }
     }
 
@@ -63,6 +62,7 @@ public class CarService {
         } else {
             System.out.println("Choose the car:");
             getAll(companyId);
+            System.out.println("0. Back");
             int chosenCar = input.takeUserDecision(0, cars.size());
             if (chosenCar == 0) {
                 return 0;
