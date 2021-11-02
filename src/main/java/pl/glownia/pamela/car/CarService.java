@@ -1,7 +1,6 @@
 package pl.glownia.pamela.car;
 
 import pl.glownia.pamela.DataBaseConnection;
-import pl.glownia.pamela.Input;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +10,6 @@ public class CarService {
 
     private List<Car> cars;
     private final CarRepository carRepository;
-    private final Input input = new Input();
 
     public CarService(DataBaseConnection dataBase) {
         cars = new ArrayList<>();
@@ -19,11 +17,8 @@ public class CarService {
         carRepository.createTable(dataBase);
     }
 
-    public void addNewCar(int companyId) {
-        int carId = getCarHelperNumber(companyId);
-        System.out.println("Enter the car name:");
-        String carName = input.getNewItem();
-        carRepository.insertRecordToTable(carId, carName, companyId);
+    public void addNewCar(String carName, int companyId) {
+        carRepository.insertRecordToTable(getCarHelperNumber(companyId), carName, companyId);
     }
 
     private int getCarHelperNumber(int companyId) {
@@ -38,11 +33,14 @@ public class CarService {
         }
     }
 
+    public int getCarsListSize(int companyId) {
+        cars = carRepository.readRecords(companyId);
+        return cars.size();
+    }
+
     public void getAll(int companyId) {
         cars = carRepository.readRecords(companyId);
-        if (cars.isEmpty()) {
-            System.out.println("The car list is empty!");
-        } else {
+        if (!isEmptyList(companyId)) {
             System.out.println("Car list:");
             cars.forEach(System.out::println);
         }
@@ -50,37 +48,25 @@ public class CarService {
 
     public boolean isEmptyList(int companyId) {
         cars = carRepository.readRecords(companyId);
-        return cars.isEmpty();
+        if (cars.isEmpty()) {
+            System.out.println("The car list is empty!");
+            return true;
+        }
+        return false;
     }
 
-    public int chooseTheCar(int companyId) {
-        if (companyId == 0) {
-            return 0;
-        } else if (isEmptyList(companyId)) {
-            System.out.println("The car list is empty!");
+    public int chooseTheCar(int companyId, int chosenCar) {
+        if (cars.isEmpty() || companyId == 0) {
             return 0;
         } else {
-            System.out.println("Choose the car:");
-            getAll(companyId);
-            System.out.println("0. Back");
-            int chosenCar = input.takeUserDecision(0, cars.size());
             if (chosenCar == 0) {
                 return 0;
             }
-            boolean isAvailable = isAvailableForRent(chosenCar, companyId);
-            while (!isAvailable) {
-                System.out.println("You can't choose this car. Choose other one or enter 0 to exit:");
-                chosenCar = input.takeUserDecision(0, cars.size());
-                if (chosenCar == 0) {
-                    break;
-                }
-                isAvailable = isAvailableForRent(chosenCar, companyId);
-            }
-            return cars.get(chosenCar - 1).getId();
         }
+        return cars.get(chosenCar - 1).getId();
     }
 
-    private boolean isAvailableForRent(int carId, int companyId) {
+    public boolean isAvailableForRent(int carId, int companyId) {
         cars = carRepository.readRecords(companyId);
         return cars.stream()
                 .anyMatch(car -> car.getId() == carId && car.getCompanyId() == companyId && car.isAvailable());
@@ -94,10 +80,11 @@ public class CarService {
         carRepository.updateInformationAboutCar(customerId, carId, companyId);
     }
 
-    public void deleteChosenCar(int companyId) {
-        int carId = chooseTheCar(companyId);
+    public void deleteChosenCar(int carId, int companyId) {
         if (isAvailableForRent(carId, companyId)) {
             carRepository.deleteCar(carId, companyId);
+        } else {
+            System.out.println("You can't delete rented car.");
         }
     }
 

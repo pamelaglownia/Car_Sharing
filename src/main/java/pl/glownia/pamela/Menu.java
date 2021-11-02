@@ -11,6 +11,7 @@ class Menu {
     private CarService carService;
     private CustomerService customerService;
     private UserDecision userDecision;
+    private Input input;
 
     public Menu() {
         dataBaseConnection = new DataBaseConnection();
@@ -22,6 +23,7 @@ class Menu {
         carService = new CarService(dataBaseConnection);
         customerService = new CustomerService(dataBaseConnection);
         userDecision = new UserDecision();
+        input = new Input();
         System.out.println();
         runInitialMenu();
     }
@@ -38,7 +40,8 @@ class Menu {
                 System.out.println();
                 break;
             case 2:
-                int customerId = customerService.chooseTheCustomer();
+                customerService.getAll();
+                int customerId = customerService.chooseTheCustomer(input.takeUserDecision(0, customerService.getCustomersListSize()));
                 System.out.println();
                 if (customerId != 0) {
                     makeCustomerDecision(customerId);
@@ -56,28 +59,32 @@ class Menu {
             System.out.println();
             switch (option) {
                 case 1:
-                    int companyId = companyService.chooseTheCompany();
+                    companyService.getAll();
+                    int companyId = companyService.chooseTheCompany(input.takeUserDecision(0, companyService.getCompaniesListSize()));
                     if (companyId != 0) {
                         System.out.println();
                         makeCarDecision(companyId);
                     }
                     break;
                 case 2:
-                    companyService.addNewCompany();
+                    System.out.println("Enter the company name:");
+                    companyService.addNewCompany(input.getNewItem());
                     break;
                 case 3:
-                    int companyToDelete = companyService.chooseTheCompany();
+                    companyService.getAll();
+                    int companyToDelete = companyService.chooseTheCompany(input.takeUserDecision(0, companyService.getCompaniesListSize()));
                     if (carService.isEmptyList(companyToDelete)) {
                         companyService.deleteCompanyFromList(companyToDelete);
-                    } else {
-                        System.out.println("You can't delete company with cars.");
                     }
                     break;
                 case 4:
-                    customerService.addNewCustomer();
+                    System.out.println("Enter the customer name:");
+                    customerService.addNewCustomer(input.getNewItem());
                     break;
                 case 5:
-                    customerService.deleteChosenCustomer();
+                    customerService.getAll();
+                    int chosenCustomer = customerService.chooseTheCustomer(input.takeUserDecision(0, customerService.getCustomersListSize()));
+                    customerService.deleteChosenCustomer(chosenCustomer);
                     break;
             }
             System.out.println();
@@ -97,11 +104,18 @@ class Menu {
                     carService.getAll(companyId);
                     break;
                 case 2:
-                    carService.addNewCar(companyId);
+                    System.out.println("Enter the car name:");
+                    carService.addNewCar(input.getNewItem(), companyId);
                     System.out.println();
                     break;
                 case 3:
-                    carService.deleteChosenCar(companyId);
+                    carService.getAll(companyId);
+                    System.out.println("0. Back");
+                    int carId = carService.chooseTheCar(companyId, input.takeUserDecision(0, carService.getCarsListSize(companyId)));
+                    if (carId == 0) {
+                        break;
+                    }
+                    carService.deleteChosenCar(carId, companyId);
             }
             System.out.println();
         } while (option != 0);
@@ -119,15 +133,29 @@ class Menu {
                         System.out.println("You've already rented a car. Return the car before you rent another one.\n");
                         break;
                     }
-                    int chosenCompany = companyService.chooseTheCompany();
-                    int chosenCar = carService.chooseTheCar(chosenCompany);
-                    if (chosenCar != 0) {
-                        if (!carService.isEmptyList(chosenCompany) && !companyService.isEmptyList()) {
-                            customerService.rentChosenCar(customerId, chosenCar, chosenCompany);
-                            carService.updateInformationAfterRentingCar(customerId, chosenCar, chosenCompany);
-                            System.out.println();
-                        } else {
-                            System.out.println("Renting this car is not possible.");
+                    companyService.getAll();
+                    int chosenCompany = companyService.chooseTheCompany(input.takeUserDecision(0, companyService.getCompaniesListSize()));
+                    if (chosenCompany != 0 && !carService.isEmptyList(chosenCompany)) {
+                        carService.getAll(chosenCompany);
+                        System.out.println("0. Back");
+                        int chosenCar = carService.chooseTheCar(chosenCompany, input.takeUserDecision(0, carService.getCarsListSize(chosenCompany)));
+                        boolean isAvailable = carService.isAvailableForRent(chosenCar, chosenCompany);
+                        while (!isAvailable) {
+                            System.out.println("You can't choose this car. Choose other one or enter 0 to exit:");
+                            chosenCar = carService.chooseTheCar(chosenCompany, input.takeUserDecision(0, carService.getCarsListSize(chosenCompany)));
+                            if (chosenCar == 0) {
+                                break;
+                            }
+                            isAvailable = carService.isAvailableForRent(chosenCar, chosenCompany);
+                        }
+                        if (chosenCar != 0) {
+                            if (!carService.isEmptyList(chosenCompany) && !companyService.isEmptyList()) {
+                                customerService.rentChosenCar(customerId, chosenCar, chosenCompany);
+                                carService.updateInformationAfterRentingCar(customerId, chosenCar, chosenCompany);
+                                System.out.println();
+                            } else {
+                                System.out.println("Renting this car is not possible.");
+                            }
                         }
                     }
                     break;

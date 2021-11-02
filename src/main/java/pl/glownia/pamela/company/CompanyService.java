@@ -1,7 +1,6 @@
 package pl.glownia.pamela.company;
 
 import pl.glownia.pamela.DataBaseConnection;
-import pl.glownia.pamela.Input;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.List;
 public class CompanyService {
     private List<Company> companies;
     private final CompanyRepository companyRepository;
-    private final Input input = new Input();
 
     public CompanyService(DataBaseConnection dataBase) {
         companies = new ArrayList<>();
@@ -17,11 +15,8 @@ public class CompanyService {
         companyRepository.createTable(dataBase);
     }
 
-    public void addNewCompany() {
-        int companyId = getCompanyId();
-        System.out.println("Enter the company name:");
-        String companyName = input.getNewItem();
-        companyRepository.insertRecordToTable(companyId, companyName);
+    public void addNewCompany(String companyName) {
+        companyRepository.insertRecordToTable(getCompanyId(), companyName);
     }
 
     private int getCompanyId() {
@@ -33,7 +28,12 @@ public class CompanyService {
         }
     }
 
-    private void getAll() {
+    public int getCompaniesListSize() {
+        companies = companyRepository.readRecords();
+        return companies.size();
+    }
+
+    public void getAll() {
         companies = companyRepository.readRecords();
         if (companies.isEmpty()) {
             System.out.println("The company list is empty!");
@@ -49,23 +49,19 @@ public class CompanyService {
         return companies.isEmpty();
     }
 
-    public int chooseTheCompany() {
-        getAll();
-        if (companies.isEmpty()) {
+    public int chooseTheCompany(int chosenCompany) {
+        if (companies.isEmpty() || chosenCompany == 0) {
             return 0;
         } else {
-            int chosenCompany = input.takeUserDecision(0, companies.size());
-            if (chosenCompany == 0) {
-                return 0;
-            } else {
-                return companies.get(chosenCompany - 1).getId();
-            }
+            return companies.get(chosenCompany - 1).getId();
         }
     }
 
     public void deleteCompanyFromList(int companyToDelete) {
         if (companyToDelete != 0) {
             companyRepository.deleteCompany(companyToDelete);
+        } else {
+            System.out.println("You can't delete company with cars.");
         }
     }
 
